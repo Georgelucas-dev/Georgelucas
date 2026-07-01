@@ -7,13 +7,13 @@ function Navbar() {
   ];
 
   return (
-    <nav className="flex min-h-15 w-screen items-center justify-center sticky">
-      <ul className="flex flex-row gap-10">
+    <nav className="fixed right-0 top-0 h-screen w-16 flex items-center justify-center border-r border-white/10">
+      <ul className="flex flex-col gap-10">
         {links.map((link) => (
-          <li key={link.href}>
-            <a
+          <li key={link.href}><a
+            
               href={link.href}
-              className="hover:text-amber-400 transition-colors"
+              className="text-sm tracking-widest [writing-mode:vertical-rl] rotate-180 hover:text-amber-400 transition-colors"
             >
               {link.label}
             </a>
