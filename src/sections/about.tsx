@@ -21,7 +21,9 @@ function About() {
 
           <div className="border-b-2 border-zinc-300 flex items-center justify-center">
             <span className="text-xl tracking-widest text-zinc-500 [writing-mode:vertical-rl]">
-              github
+              <a href="https://github.com/Georgelucas-dev" target="_blank" rel="noopener noreferrer">
+                github
+              </a>
             </span>
           </div>
 
@@ -45,14 +47,16 @@ function About() {
           </div>
           <div className="flex items-center justify-center">
             <span className="text-xl tracking-widest text-zinc-500 [writing-mode:vertical-rl]">
-              linkedin
+              <a href="https://www.linkedin.com/in/george-lucas/" target="_blank" rel="noopener noreferrer">
+                linkedin
+              </a>
             </span>
           </div>
 
           {/* linha 4 — notas de rodapé */}
           <div className="col-span-3 px-10 py-6 border-t-2 border-r-2 border-zinc-300">
             <p className="text-xl text-blue-500 mb-1">
-              * dev focado em front-end, sempre aprendendo algo novo.
+              * dev focado em full-stack, sempre aprendendo algo novo.
             </p>
             <p className="text-xl text-blue-500">
               ** projetos reais, sem enfeite — pode conferir o código.
@@ -60,7 +64,9 @@ function About() {
           </div>
           <div className="border-t-2 border-zinc-300 flex items-center justify-center">
             <span className="text-xl tracking-widest text-zinc-500 [writing-mode:vertical-rl]">
-              email
+              <a href="mailto:george.lucas@example.com" target="_blank" rel="noopener noreferrer">
+                email
+              </a>
             </span>
           </div>
         </div>

@@ -1,22 +1,26 @@
-// App.tsx
+import { CursorProvider, Cursor, CursorFollow } from "@/components/animate-ui/components/animate/cursor";
+import Footer from "./sections/footer";
 import Hero from "./sections/hero";
 import About from "./sections/about";
 import Projects from "./sections/projects";
 import Contact from "./sections/contact";
-import Footer from "./sections/footer";
 
 function App() {
   return (
-    <div className="relative">
-      <main>
-        <Hero />
-        <About />
-        <Projects />
-        <Contact />
+    <CursorProvider global>
+      <Cursor />
+      <CursorFollow>Developer</CursorFollow>
+
+      <div className="relative">
+        <main>
+          <Hero />
+          <About />
+          <Projects />
+          <Contact />
+        </main>
         <Footer />
-        {/* próximas sections aqui */}
-      </main>
-    </div>
+      </div>
+    </CursorProvider>
   );
 }
 
