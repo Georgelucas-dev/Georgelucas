@@ -1,31 +1,21 @@
-import nodemailer from "nodemailer";
+import { Resend } from "resend";
 
 export class EmailService {
   static async send(data: { name: string; email: string; message: string }) {
-    const smtpHost = process.env.SMTP_HOST?.trim();
-    const smtpUser = process.env.SMTP_USER?.trim();
-    const smtpPass = process.env.SMTP_PASS?.replace(/\s+/g, "").trim();
     const emailFrom = process.env.EMAIL_FROM?.trim();
     const emailTo = process.env.EMAIL_TO?.trim();
+    const resendApiKey = process.env.RESEND_API_KEY?.trim();
 
-    if (!smtpHost || !smtpUser || !smtpPass || !emailFrom || !emailTo) {
+    if (!resendApiKey || !emailFrom || !emailTo) {
       throw new Error(
-        "SMTP configuration is incomplete. Check your backend .env file.",
+        "Resend configuration is incomplete. Check your backend .env file.",
       );
     }
 
-    const transporter = nodemailer.createTransport({
-      host: smtpHost,
-      port: Number(process.env.SMTP_PORT || 587),
-      secure: false,
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-    });
+    const resend = new Resend(resendApiKey);
 
     try {
-      await transporter.sendMail({
+      await resend.emails.send({
         from: emailFrom,
         to: emailTo,
         replyTo: data.email,
