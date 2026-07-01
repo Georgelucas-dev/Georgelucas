@@ -31,8 +31,6 @@ function DesktopNavbar() {
   const { heroVisivel } = useHero();
   const expandida = heroVisivel;
 
-  console.log(heroVisivel);
-
   const { theme, toggleTheme } = useTheme();
 
   return (
