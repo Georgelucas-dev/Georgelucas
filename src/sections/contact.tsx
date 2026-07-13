@@ -78,7 +78,7 @@ function Contact() {
         className="w-full"
         initial={{ opacity: 0, y: 50 }}
         whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: false, amount: 0.5 }}
+        viewport={{ once: true, amount: 0.5 }}
         transition={{ duration: 0.6, ease: "easeOut" }}
       >
         <p className="text-4xl text-zinc-500 mb-4">Contato</p>

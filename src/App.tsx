@@ -7,11 +7,10 @@ import { useEffect, useState } from "react";
 import Footer from "./sections/footer";
 import Hero from "./sections/hero";
 import About from "./sections/about/about";
-import Projects from "./sections/projects";
+import Projects from "./sections/projects/projects";
 import Contact from "./sections/contact";
 import { ThemeProvider } from "./context/ThemeContext";
 import Navbar from "./components/Navbar/navbar";
-import Skills from "./sections/skills";
 
 function App() {
   const [showCursor, setShowCursor] = useState(() => {
@@ -51,7 +50,6 @@ function App() {
             <Navbar />
             <Hero />
             <About />
-            <Skills />
             <Projects />
             <Contact />
             <Footer />
