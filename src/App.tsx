@@ -11,7 +11,7 @@ import Projects from "./sections/projects/projects";
 import Contact from "./sections/contact";
 import { ThemeProvider } from "./context/ThemeContext";
 import Navbar from "./components/Navbar/navbar";
-import WhyWorkWithMe from "./sections/whyWorkWithMe";
+import WhyWorkWithMe from "./sections/whyWorkWithMe/index";
 import { motion, AnimatePresence } from "motion/react";
 
 import Loader from "./components/Loader";
