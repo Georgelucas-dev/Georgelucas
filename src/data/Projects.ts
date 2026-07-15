@@ -7,8 +7,6 @@ import t1ServicesDesktop from "../assets/projects/psychologist-tamplate1/psychol
 import t1ServicesMobile from "../assets/projects/psychologist-tamplate1/psychologist-template-services-mobile.png";
 import t1AboutDesktop from "../assets/projects/psychologist-tamplate1/psychologist-template-about-desktop.png";
 import t1AboutMobile from "../assets/projects/psychologist-tamplate1/psychologist-template-about-mobile.png";
-import t1Background from "../assets/projects/psychologist-tamplate1/background.jpg";
-import t1BackgroundMobile from "../assets/projects/psychologist-tamplate1/background-mobile.jpg";
 
 // Template 2
 import t2HeroDesktop from "../assets/projects/psychologist-tamplate2/psychologist-template-hero-desktop.webp";
@@ -48,20 +46,14 @@ export const projectsData: Project[] = [
       {
         desktopImage: t1HeroDesktop,
         mobileImage: t1HeroMobile,
-        backgroundImage: t1Background,
-        backgroundImageMobile: t1BackgroundMobile,
       },
       {
         desktopImage: t1ServicesMobile,
         mobileImage: t1ServicesDesktop,
-        backgroundImage: t1Background,
-        backgroundImageMobile: t1BackgroundMobile,
       },
       {
         desktopImage: t1AboutMobile,
         mobileImage: t1AboutDesktop,
-        backgroundImage: t1Background,
-        backgroundImageMobile: t1BackgroundMobile,
       },
     ],
   },
@@ -77,20 +69,14 @@ export const projectsData: Project[] = [
       {
         desktopImage: t2HeroDesktop,
         mobileImage: t2HeroMobile,
-        backgroundImage: t1Background,
-        backgroundImageMobile: t1BackgroundMobile,
       },
       {
         desktopImage: t2ServicesMobile,
         mobileImage: t2ServicesDesktop,
-        backgroundImage: t1Background,
-        backgroundImageMobile: t1BackgroundMobile,
       },
       {
         desktopImage: t2HowItWorksDesktop,
         mobileImage: t2HowItWorksMobile,
-        backgroundImage: t1Background,
-        backgroundImageMobile: t1BackgroundMobile,
       },
     ],
   },

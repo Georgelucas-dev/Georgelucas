@@ -65,7 +65,7 @@ export default function WhyWorkWithMe() {
           style={{ height: `${pillars.length * VH_PER_ITEM}vh` }}
         >
           <div className="sticky top-0 flex h-[100svh] w-full grid-cols-12 overflow-hidden px-12 lg:px-24 bg-background md:grid">
-            <PillarDetails activePillar={pillars[activeIndex]} />
+            <PillarDetails pillars={pillars} activeIndex={activeIndex} />
             <PillarList
               pillars={pillars}
               activeIndex={activeIndex}

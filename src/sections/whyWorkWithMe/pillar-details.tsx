@@ -1,36 +1,55 @@
+import { useEffect } from "react";
 import type { Pillar } from "../../data/pillars-data";
 import { motion, AnimatePresence } from "motion/react";
 
 interface PillarDetailsProps {
-  activePillar: Pillar;
+  pillars: Pillar[];
+  activeIndex: number;
 }
 
-export function PillarDetails({ activePillar }: PillarDetailsProps) {
+export function PillarDetails({ pillars, activeIndex }: PillarDetailsProps) {
+  const activePillar = pillars[activeIndex];
+
+  // Pré-carrega todas as imagens uma vez, assim que a seção monta —
+  // quando a pessoa trocar de item, a imagem já está baixada e decodificada.
+  useEffect(() => {
+    pillars.forEach((pillar) => {
+      const img = new Image();
+      img.src = pillar.image;
+    });
+  }, [pillars]);
+
   if (!activePillar) return null;
 
   return (
     <div className="col-span-12 md:col-span-5 flex flex-col justify-center h-[50svh] md:h-full py-8 md:py-16 pr-0 md:pr-10 lg:pr-16 pt-8 md:pt-0">
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activePillar.id}
-          initial={{ opacity: 0, y: 6 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -6 }}
-          transition={{ duration: 0.15, ease: "easeOut" }}
-          className="flex flex-col gap-6 md:gap-10"
-        >
-          {/* Imagem/Mockup — primeiro elemento da área travada */}
-          <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-900 border border-border/50 shadow-2xl will-change-transform">
-            <img
-              src={activePillar.image}
-              alt={activePillar.title}
-              className="h-full w-full object-cover brightness-[0.85] contrast-[1.05]"
+      <div className="flex flex-col gap-6 md:gap-10">
+        {/* Imagem/Mockup — todas montadas sempre, só a opacidade troca */}
+        <div className="relative aspect-[4/3] w-full overflow-hidden rounded-3xl bg-zinc-900 border border-border/50 shadow-2xl">
+          {pillars.map((pillar, i) => (
+            <motion.img
+              key={pillar.id}
+              src={pillar.image}
+              alt={pillar.title}
               loading="eager"
+              decoding="async"
+              animate={{ opacity: i === activeIndex ? 1 : 0 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+              className="absolute inset-0 h-full w-full object-cover brightness-[0.85] contrast-[1.05] will-change-transform pointer-events-none"
             />
-          </div>
+          ))}
+        </div>
 
-          {/* Dados em Tabela */}
-          <div className="flex flex-col font-sans text-foreground">
+        {/* Dados em Tabela — texto continua trocando de verdade (é barato) */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activePillar.id}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -6 }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
+            className="flex flex-col font-sans text-foreground"
+          >
             <div className="grid grid-cols-4 border-t border-border/40 py-5 md:py-6">
               <span className="text-muted-foreground uppercase tracking-wider text-[11px] md:text-sm">
                 Overview
@@ -57,9 +76,9 @@ export function PillarDetails({ activePillar }: PillarDetailsProps) {
                 ))}
               </div>
             </div>
-          </div>
-        </motion.div>
-      </AnimatePresence>
+          </motion.div>
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
