@@ -12,6 +12,7 @@ import Contact from "./sections/contact";
 import { ThemeProvider } from "./context/ThemeContext";
 import Navbar from "./components/Navbar/navbar";
 import WhyWorkWithMe from "./sections/whyWorkWithMe/index";
+import { ServicesSection } from "./sections/services/ServicesSection";
 import { motion, AnimatePresence } from "motion/react";
 
 import Loader from "./components/Loader";
@@ -77,7 +78,8 @@ function App() {
               >
                 <Navbar />
                 <Hero />
-                <ScatterTextSection/>
+                <ScatterTextSection />
+                <ServicesSection/>
                 <About />
                 <Projects />
                 <WhyWorkWithMe/>
