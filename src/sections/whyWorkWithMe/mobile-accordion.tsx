@@ -13,11 +13,11 @@ export function MobileAccordion({ pillars }: { pillars: Pillar[] }) {
           const isActive = activeIndex === index;
 
           return (
-            <div key={pillar.id} className="flex flex-col w-full">
-              {/* Item clicável — só cor muda, sem crescer/encolher */}
+            <div key={pillar.id} className="flex flex-col w-full transform-gpu">
+              {/* Item clicável */}
               <button
                 onClick={() => setActiveIndex(isActive ? null : index)}
-                className="py-2 text-left w-full"
+                className="py-2 text-left w-full outline-none"
               >
                 <h2
                   className={cn(
@@ -29,35 +29,38 @@ export function MobileAccordion({ pillars }: { pillars: Pillar[] }) {
                 </h2>
               </button>
 
-              {/* Altura via CSS puro (grid-rows trick) — sem medir "auto" via JS a cada abertura */}
+              {/* 
+                O SEGREDO DE PERFORMANCE: 
+                1. O CSS Grid cuida da altura de forma nativa e acelerada.
+                2. opacity transition faz o fade in sem Framer Motion.
+                3. NENHUM translate-y interno para não causar Layout Thrashing.
+              */}
               <div
                 className={cn(
-                  "grid transition-[grid-template-rows] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                  isActive ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
+                  "grid transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] will-change-[grid-template-rows,opacity]",
+                  isActive
+                    ? "grid-rows-[1fr] opacity-100"
+                    : "grid-rows-[0fr] opacity-0 pointer-events-none",
                 )}
               >
                 <div className="overflow-hidden">
-                  {/* Conteúdo desliza de cima pra baixo, com leve atraso em relação à altura */}
-                  <div
-                    className={cn(
-                      "flex flex-col gap-6 pb-12 pt-4 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                      isActive
-                        ? "opacity-100 translate-y-0 delay-[120ms]"
-                        : "opacity-0 -translate-y-3 delay-[0ms]",
-                    )}
-                  >
-                    {/* Imagem */}
-                    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-zinc-900 border border-border/50">
+                  <div className="flex flex-col gap-6 pb-12 pt-4">
+                    {/* 
+                      Imagem: 
+                      Sempre presente no DOM. shrink-0 impede recalculos. 
+                      transform-gpu avisa o celular para nunca redesenhar essa div.
+                    */}
+                    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-zinc-900 border border-border/50 shrink-0 transform-gpu">
                       <img
                         src={pillar.image}
                         alt={pillar.title}
-                        className="h-full w-full object-cover brightness-[0.85] contrast-[1.05]"
-                        loading="lazy"
+                        loading="eager"
+                        className="absolute inset-0 h-full w-full object-cover brightness-[0.85] contrast-[1.05]"
                       />
                     </div>
 
                     {/* Textos Detalhados */}
-                    <div className="flex flex-col font-sans text-sm text-foreground">
+                    <div className="flex flex-col font-sans text-sm text-foreground transform-gpu">
                       <div className="flex flex-col border-t border-border/40 py-4 gap-2">
                         <span className="text-muted-foreground font-mono uppercase tracking-wider text-[10px]">
                           Overview
