@@ -48,8 +48,8 @@ export default function WhyWorkWithMe() {
   return (
     <>
       {/* Título — fora da área travada, sem numeração */}
-      <div className="px-12 lg:px-24 pt-16 pb-8 md:pt-24 md:pb-12 bg-background">
-        <h2 className="font-display text-3xl md:text-5xl font-bold tracking-tight text-foreground">
+      <div className="px-8 lg:px-24 pt-16 pb-8 md:pt-24 md:pb-10 bg-background">
+        <h2 className="font-display text-5xl md:text-5xl font-bold tracking-tight text-foreground">
           Por que trabalhar comigo
         </h2>
       </div>
