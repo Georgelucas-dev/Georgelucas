@@ -1,5 +1,5 @@
 // src/components/services/ServicesSection.tsx
-import { useRef, useState, useEffect, useCallback } from "react";
+import { useRef, useState, useEffect } from "react";
 import { AnimatePresence } from "motion/react";
 import { services, type Service } from "../../data/services-data";
 import { ServiceDrawer } from "./ServiceDrawer";
@@ -7,80 +7,49 @@ import { ServiceDrawer } from "./ServiceDrawer";
 export function ServicesSection() {
   const titleRef = useRef<HTMLHeadingElement>(null);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
-
   const [leftOffset, setLeftOffset] = useState<number | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [atStart, setAtStart] = useState(true);
-  const [atEnd, setAtEnd] = useState(false);
-
-  const updateBoundaryState = useCallback(() => {
-    const container = scrollContainerRef.current;
-    if (!container) return;
-    const maxScroll = container.scrollWidth - container.clientWidth;
-    setAtStart(container.scrollLeft <= 1);
-    setAtEnd(container.scrollLeft >= maxScroll - 1);
-  }, []);
 
   useEffect(() => {
-    const update = () => {
+    const updateOffset = () => {
       if (titleRef.current) {
         setLeftOffset(titleRef.current.getBoundingClientRect().left);
       }
-      updateBoundaryState();
     };
 
-    update();
-    const timeout = setTimeout(update, 100);
+    updateOffset();
+    setTimeout(updateOffset, 100);
 
-    window.addEventListener("resize", update);
-    return () => {
-      clearTimeout(timeout);
-      window.removeEventListener("resize", update);
-    };
-  }, [updateBoundaryState]);
-
-  // Mede a posição REAL do card no DOM (sub-pixel), em vez de somar uma
-  // distância aproximada — assim o alvo sempre coincide com um ponto de
-  // snap válido, e o snap-mandatory nunca "corrige" para trás.
-  const goToIndex = (index: number) => {
-    const container = scrollContainerRef.current;
-    const card = cardRefs.current[index];
-    if (!container || !card) return;
-
-    const maxScroll = container.scrollWidth - container.clientWidth;
-    const containerRect = container.getBoundingClientRect();
-    const cardRect = card.getBoundingClientRect();
-
-    const target = Math.min(
-      Math.max(cardRect.left - containerRect.left + container.scrollLeft, 0),
-      maxScroll,
-    );
-
-    container.scrollTo({ left: target, behavior: "smooth" });
-    setActiveIndex(index);
-  };
+    window.addEventListener("resize", updateOffset);
+    return () => window.removeEventListener("resize", updateOffset);
+  }, []);
 
   const scroll = (direction: "left" | "right") => {
-    const nextIndex =
-      direction === "right"
-        ? Math.min(activeIndex + 1, services.length - 1)
-        : Math.max(activeIndex - 1, 0);
+    if (
+      scrollContainerRef.current &&
+      scrollContainerRef.current.firstElementChild
+    ) {
+      const container = scrollContainerRef.current;
+      const card = container.firstElementChild as HTMLElement;
+      const scrollAmount = card.offsetWidth + 24; // Card + gap-6
 
-    goToIndex(nextIndex);
+      container.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
   };
 
   return (
-    <section className="relative w-full h-[100vh] min-h-[750px] bg-background text-foreground py-12 lg:py-16 overflow-hidden flex flex-col justify-between">
-      {/* 1. TOPO: Título */}
-      <div className="max-w-[1440px] mx-auto w-full px-6 md:px-16 grid grid-cols-12 shrink-0">
+    <section className="relative w-full h-[100vh] min-h-[750px] bg-background text-ink py-12 lg:py-16 overflow-hidden flex flex-col justify-between">
+      {/* 1. TOPO: Alinhado para escapar do menu lateral colapsado */}
+      <div className="max-w-[1440px] mx-auto w-full px-6 md:px-12 lg:pl-32 lg:pr-16 xl:pl-40 xl:pr-24 grid grid-cols-12 shrink-0">
         <div className="hidden lg:col-span-1 lg:flex flex-col justify-start">
-          <span className="font-mono text-xs uppercase tracking-[0.2em] text-muted-foreground origin-left rotate-90 translate-y-24 whitespace-nowrap">
+          <span className="font-mono text-xs uppercase tracking-[0.2em] text-ink-soft origin-left rotate-90 translate-y-24 whitespace-nowrap">
             Tipo de Serviço
           </span>
         </div>
-        <div className="col-span-12 lg:mb-5 lg:col-span-11">
+        <div className="col-span-12 lg:col-span-11">
           <h2
             ref={titleRef}
             className="font-display font-extrabold text-5xl md:text-7xl lg:text-7xl tracking-tighter"
@@ -90,11 +59,10 @@ export function ServicesSection() {
         </div>
       </div>
 
-      {/* 2. CARROSSEL */}
+      {/* 2. CARROSSEL: Herda a margem esquerda dinâmica calculada do título */}
       <div className="w-full flex-1 flex flex-col justify-center my-6 lg:my-0">
         <div
           ref={scrollContainerRef}
-          onScroll={updateBoundaryState}
           className="flex gap-6 overflow-x-auto scrollbar-none snap-x snap-mandatory pb-4 pr-6 md:pr-16"
           style={{
             marginLeft: leftOffset !== null ? `${leftOffset}px` : "1.5rem",
@@ -102,11 +70,8 @@ export function ServicesSection() {
             msOverflowStyle: "none",
           }}
         >
-          {services.map((service, index) => (
+          {services.map((service) => (
             <div
-              ref={(el) => {
-                cardRefs.current[index] = el;
-              }}
               key={service.id}
               onClick={() => setSelectedService(service)}
               style={{
@@ -114,7 +79,8 @@ export function ServicesSection() {
                 transform: "translateZ(0)",
                 WebkitFontSmoothing: "antialiased",
               }}
-              className={`snap-start shrink-0 w-[80vw] sm:w-[40vw] lg:w-[380px] xl:w-[420px] aspect-[4/5] rounded-none p-6 md:p-8 bg-gradient-to-br ${service.bgGradient} flex flex-col justify-between cursor-pointer group transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.03] shadow-xl will-change-transform origin-center`}
+              // Mantido rounded-none e text-white por causa dos gradientes vibrantes
+              className={`snap-start shrink-0 w-[80vw] sm:w-[40vw] lg:w-[25vw] xl:w-[22vw] aspect-[4/5] rounded-none p-6 md:p-8 bg-gradient-to-br ${service.bgGradient} flex flex-col justify-between cursor-pointer group transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] hover:scale-[1.03] shadow-xl will-change-transform origin-center`}
             >
               <div className="flex justify-end opacity-40 group-hover:opacity-100 group-hover:-translate-y-2 transition-all duration-500 ease-out text-white">
                 <svg
@@ -146,16 +112,14 @@ export function ServicesSection() {
         </div>
       </div>
 
-      {/* 3. RODAPÉ */}
-      <div className="max-w-[1440px] mx-auto w-full px-6 md:px-16 grid grid-cols-12 pt-6 shrink-0">
+      {/* 3. RODAPÉ: Alinhado no mesmo grid do Topo */}
+      <div className="max-w-[1440px] mx-auto w-full px-6 md:px-12 lg:pl-32 lg:pr-16 xl:pl-40 xl:pr-24 grid grid-cols-12 pt-6 border-t border-border shrink-0">
         <div className="hidden lg:block lg:col-span-1"></div>
         <div className="col-span-12 lg:col-span-11 flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
           <div className="flex gap-3">
             <button
               onClick={() => scroll("left")}
-              disabled={atStart}
-              aria-label="Anterior"
-              className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-border bg-background flex items-center justify-center hover:bg-accent hover:text-accent-foreground text-foreground active:scale-95 transition-all duration-200 disabled:opacity-30 disabled:pointer-events-none"
+              className="w-12 h-12 md:w-14 md:h-14 rounded-none border border-border bg-background flex items-center justify-center hover:bg-accent hover:text-accent-foreground text-ink active:scale-95 transition-all duration-200"
             >
               <svg
                 className="w-5 h-5 md:w-6 md:h-6 rotate-180"
@@ -173,9 +137,7 @@ export function ServicesSection() {
             </button>
             <button
               onClick={() => scroll("right")}
-              disabled={atEnd}
-              aria-label="Próximo"
-              className="w-12 h-12 md:w-14 md:h-14 rounded-full border border-border bg-background flex items-center justify-center hover:bg-accent hover:text-accent-foreground text-foreground active:scale-95 transition-all duration-200 disabled:opacity-30 disabled:pointer-events-none"
+              className="w-12 h-12 md:w-14 md:h-14 rounded-none border border-border bg-background flex items-center justify-center hover:bg-accent hover:text-accent-foreground text-ink active:scale-95 transition-all duration-200"
             >
               <svg
                 className="w-5 h-5 md:w-6 md:h-6"
@@ -194,11 +156,11 @@ export function ServicesSection() {
           </div>
 
           <div className="flex flex-col gap-3 font-sans text-sm md:max-w-[500px] md:text-right">
-            <p className="text-foreground font-medium leading-relaxed">
+            <p className="text-ink font-medium leading-relaxed">
               Meu foco é entregar sites e aplicações que não só ficam bonitos,
               mas realmente geram resultados para quem contrata.
             </p>
-            <p className="text-xs text-muted-foreground leading-relaxed hidden sm:block">
+            <p className="text-xs text-ink-soft leading-relaxed hidden sm:block">
               Com conhecimento sólido em React, Node.js e design de interfaces,
               crio experiências modernas, rápidas e fáceis de usar.
             </p>
