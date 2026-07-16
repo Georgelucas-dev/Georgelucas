@@ -50,7 +50,7 @@ export function MobileAccordion({ pillars }: { pillars: Pillar[] }) {
                       Sempre presente no DOM. shrink-0 impede recalculos. 
                       transform-gpu avisa o celular para nunca redesenhar essa div.
                     */}
-                    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-xl bg-zinc-900 border border-border/50 shrink-0 transform-gpu">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden bg-zinc-900 shrink-0 transform-gpu">
                       <img
                         src={pillar.image}
                         alt={pillar.title}
