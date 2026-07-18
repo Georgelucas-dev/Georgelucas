@@ -57,7 +57,9 @@ function App() {
       <Cursor />
       <div className="relative">
         {/* O Loader é o único elemento que existe de imediato */}
-        <Loader onComplete={() => setLoadingComplete(true)} />
+        {!loadingComplete && (
+          <Loader onComplete={() => setLoadingComplete(true)} />
+        )}
 
         {/* O conteúdo só é montado (e animado) quando loadingComplete for true */}
         <AnimatePresence>
@@ -75,7 +77,7 @@ function App() {
               <About />
               <WhyWorkWithMe />
               <Contact />
-              <VibePicker/>
+              <VibePicker />
               <Footer />
             </motion.main>
           )}

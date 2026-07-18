@@ -14,6 +14,13 @@ if (typeof window !== "undefined") {
 const MOBILE_QUERY = "(max-width: 767px)";
 const ITEM_HEIGHT = 120;
 
+// Quanto MENOR, mais sensível: um scroll pequeno já avança bastante na lista.
+const SCROLL_DISTANCE_PER_ITEM = 20; // era 40 — cortado quase pela metade
+
+// Quanto MENOR, mais rápida a troca de detalhes (menos tempo "borrado" na
+// transição, mais tempo com o item parado e legível entre uma troca e outra).
+const CROSSFADE_EDGE = 0.12; // era 0.3
+
 export default function WhyWorkWithMe() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
@@ -29,124 +36,104 @@ export default function WhyWorkWithMe() {
   useLayoutEffect(() => {
     if (isMobile || !containerRef.current) return;
 
-    // Instancia o Context do GSAP (Garbage Collector limpo)
     const ctx = gsap.context(() => {
       const totalItems = pillars.length;
 
-      // O deslocamento máximo que a lista (Track) precisa dar
-      // InitialY: Posiciona o primeiro item no meio
       const initialY = ((totalItems - 1) / 2) * ITEM_HEIGHT;
-      // FinalY: Posiciona o último item no meio
       const finalY = initialY - (totalItems - 1) * ITEM_HEIGHT;
 
-      // Cria a timeline atrelada ao scroll
       const tl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
           start: "top top",
-          // Diminuímos de 80% para 40%.
-          // Quanto menor o número, menos você precisa dar scroll.
-          end: `+=${totalItems * 40}%`,
+          end: `+=${totalItems * SCROLL_DISTANCE_PER_ITEM}%`,
           pin: true,
-          // Diminuímos de 1 para 0.5.
-          // Isso deixa a resposta do movimento mais "seca" e conectada ao mouse.
           scrub: 0.5,
           anticipatePin: 1,
         },
       });
 
-      // 1. ANIMAÇÃO DA LISTA DE TEXTOS DIREITA (Track contínuo)
-      // O movimento da lista leva 100% da duração da timeline
       tl.to(
         ".pillar-list-track",
         {
           y: finalY,
-          ease: "none", // Mantém velocidade constante no scroll
-          duration: totalItems, // Duração "lógica" total
+          ease: "none",
+          duration: totalItems,
         },
         0,
-      ); // O "0" crava o início no marco zero da timeline
+      );
 
-      // 2. SINCRONIA DE ESTILOS E TROCA DE PAINEIS (ESQUERDA E DIREITA)
-      pillars.forEach((_, i) => {
-        const img = `.pillar-img-${i}`;
-        const text = `.pillar-text-${i}`;
-        const title = `.pillar-title-${i}`;
-        const idx = `.pillar-idx-${i}`;
+      for (let i = 0; i < totalItems - 1; i++) {
+        const boundary = i + 0.5;
+        const start = boundary - CROSSFADE_EDGE;
+        const duration = CROSSFADE_EDGE * 2;
 
-        // Tempo exato na timeline lógica onde esse item está centralizado.
-        const centerTime = i;
+        const outImg = `.pillar-img-${i}`;
+        const outText = `.pillar-text-${i}`;
+        const outTitle = `.pillar-title-${i}`;
+        const outIdx = `.pillar-idx-${i}`;
 
-        // Animação de Entrada (Ocorre no segundo que antecede o centerTime)
-        if (i !== 0) {
-          const inTime = centerTime - 0.5;
-          const duration = 0.5;
+        const inImg = `.pillar-img-${i + 1}`;
+        const inText = `.pillar-text-${i + 1}`;
+        const inTitle = `.pillar-title-${i + 1}`;
+        const inIdx = `.pillar-idx-${i + 1}`;
 
-          tl.fromTo(
-            img,
-            { opacity: 0 },
-            { opacity: 1, duration, ease: "power1.inOut" },
-            inTime,
+        tl.to(outImg, { opacity: 0, duration, ease: "power1.inOut" }, start)
+          .to(
+            outText,
+            { opacity: 0, y: -15, duration, ease: "power1.inOut" },
+            start,
           )
-            .fromTo(
-              text,
-              { opacity: 0, y: 15 },
-              { opacity: 1, y: 0, duration, ease: "power1.out" },
-              inTime,
-            )
-            .to(
-              title,
-              {
-                color: "rgba(255, 255, 255, 1)",
-                duration,
-                ease: "power1.inOut",
-              },
-              inTime,
-            )
-            .fromTo(
-              idx,
-              { opacity: 0, y: -5 },
-              { opacity: 1, y: 0, duration, ease: "power1.inOut" },
-              inTime,
-            );
-        }
+          .to(
+            outTitle,
+            {
+              color: "rgba(255, 255, 255, 0.35)",
+              duration,
+              ease: "power1.inOut",
+            },
+            start,
+          )
+          .to(
+            outIdx,
+            { opacity: 0, y: 5, duration, ease: "power1.inOut" },
+            start,
+          );
 
-        // Animação de Saída (Ocorre no segundo após o centerTime)
-        if (i !== totalItems - 1) {
-          const outTime = centerTime;
-          const duration = 0.5;
-
-          tl.to(img, { opacity: 0, duration, ease: "power1.inOut" }, outTime)
-            .to(
-              text,
-              { opacity: 0, y: -15, duration, ease: "power1.in" },
-              outTime,
-            )
-            .to(
-              title,
-              {
-                color: "rgba(255, 255, 255, 0.35)",
-                duration,
-                ease: "power1.inOut",
-              },
-              outTime,
-            )
-            .to(
-              idx,
-              { opacity: 0, y: 5, duration, ease: "power1.inOut" },
-              outTime,
-            );
-        }
-      });
+        tl.fromTo(
+          inImg,
+          { opacity: 0 },
+          { opacity: 1, duration, ease: "power1.inOut" },
+          start,
+        )
+          .fromTo(
+            inText,
+            { opacity: 0, y: 15 },
+            { opacity: 1, y: 0, duration, ease: "power1.inOut" },
+            start,
+          )
+          .to(
+            inTitle,
+            {
+              color: "rgba(255, 255, 255, 1)",
+              duration,
+              ease: "power1.inOut",
+            },
+            start,
+          )
+          .fromTo(
+            inIdx,
+            { opacity: 0, y: -5 },
+            { opacity: 1, y: 0, duration, ease: "power1.inOut" },
+            start,
+          );
+      }
     }, containerRef);
 
-    // Reverte (Destrói) e limpa classes quando componente desmonta
     return () => ctx.revert();
   }, [isMobile]);
 
   return (
     <>
-      {/* Título Fixo */}
       <div className="px-6 lg:px-16 xl:px-30 pt-16 md:pt-24 bg-background">
         <h2 className="font-display text-5xl md:text-5xl font-bold tracking-tight text-foreground">
           Por que trabalhar comigo
@@ -158,7 +145,6 @@ export default function WhyWorkWithMe() {
           <MobileAccordion pillars={pillars} />
         </section>
       ) : (
-        /* 👇 A MÁGICA AQUI: O wrapper com overflow-x-clip */
         <div className="w-full overflow-x-clip bg-background">
           <section ref={containerRef} className="relative w-full h-svh">
             <div

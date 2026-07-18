@@ -1,30 +1,15 @@
 // sections/hero.tsx
-import { motion } from "motion/react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { useHero } from "@/context/HeroContext";
-
-import mockupImg from "../assets/image/image.webp";
+import { gsap } from "gsap";
 
 export default function Hero() {
   const heroRef = useRef<HTMLElement | null>(null);
+  const navRef = useRef<HTMLElement | null>(null);
+  const iconRef = useRef<HTMLDivElement | null>(null);
+  const textRef = useRef<HTMLParagraphElement | null>(null);
+  const titleRef = useRef<HTMLHeadingElement | null>(null);
   const { setHeroVisivel } = useHero();
-  const [time, setTime] = useState<string>("");
-
-  useEffect(() => {
-    const updateTime = () => {
-      const now = new Date();
-      setTime(
-        now.toLocaleTimeString("pt-BR", {
-          hour: "2-digit",
-          minute: "2-digit",
-          timeZone: "America/Sao_Paulo",
-        }),
-      );
-    };
-    updateTime();
-    const interval = setInterval(updateTime, 10000);
-    return () => clearInterval(interval);
-  }, []);
 
   useEffect(() => {
     const elemento = heroRef.current;
@@ -41,31 +26,64 @@ export default function Hero() {
     return () => observer.disconnect();
   }, [setHeroVisivel]);
 
-  const transition = { duration: 1.2, ease: [0.76, 0, 0.24, 1] };
+  // GSAP Animations
+  useEffect(() => {
+    // Easing equivalente: [0.76, 0, 0.24, 1] = "power4.inOut"
+    const ease = "power4.inOut";
+    const duration = 1.4;
+
+    // Nav animation
+    gsap.fromTo(
+      navRef.current,
+      { opacity: 0, y: -20 },
+      { opacity: 1, y: 0, duration, ease, delay: 0.1 },
+    );
+
+    // Icon animation
+    gsap.fromTo(
+      iconRef.current,
+      { opacity: 0, scale: 0.8 },
+      { opacity: 1, scale: 1, duration, ease, delay: 0.4 },
+    );
+
+    // Text animation
+    gsap.fromTo(
+      textRef.current,
+      { opacity: 0, y: 20 },
+      { opacity: 1, y: 0, duration, ease, delay: 0.5 },
+    );
+
+    // Title animation
+    gsap.fromTo(
+      titleRef.current,
+      { y: "100%" },
+      { y: 0, duration, ease, delay: 0.6 },
+    );
+  }, []);
 
   return (
     <section
       id="home"
       ref={heroRef}
-      className="relative flex flex-col w-full min-h-svh bg-background text-ink px-6 md:px-12 lg:pl-64 lg:pr-16 xl:pl-72 xl:pr-24 pt-8 lg:pt-12 pb-8 overflow-hidden"
+      className="relative flex lg:pb-4 flex-col w-full min-h-svh bg-background text-ink overflow-hidden"
     >
-      {/* HEADER (Top Nav Interno) — segue oculto no mobile, o MobileNavbar cobre esse papel */}
-      <motion.nav
-        initial={{ opacity: 0, y: -10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ ...transition, delay: 0.1 }}
-        className="hidden md:flex justify-between items-center w-full mb-12 lg:mb-20"
+      {/* 1. HEADER (Top Nav) - Inspirado na referência, com os links centralizados */}
+      <nav
+        ref={navRef}
+        className="lg:flex hidden justify-between items-center w-full px-6 md:px-12 pt-8"
       >
-        <div className="w-1/4">
+        {/* Logo Direita */}
+        <div className="w-1/3">
           <a
             href="#home"
-            className="font-display text-2xl lg:text-3xl font-bold tracking-tight flex items-center gap-2"
+            className="font-display text-xl md:text-2xl font-bold tracking-tight uppercase"
           >
             George Lucas
           </a>
         </div>
 
-        <div className="hidden md:flex flex-1 justify-center lg:justify-start lg:pl-8 xl:pl-12 gap-8 lg:gap-12 text-sm text-ink-soft">
+        {/* Links Centralizados (Oculto no mobile, onde entra o menu hambúrguer) */}
+        <div className="hidden md:flex w-1/3 justify-center gap-8 text-sm font-medium text-ink/70">
           <a href="#servicos" className="hover:text-ink transition-colors">
             Serviços
           </a>
@@ -74,146 +92,58 @@ export default function Hero() {
           </a>
         </div>
 
-        <div className="w-auto lg:w-1/4 flex justify-end">
+        {/* Botão de Contato Esquerda */}
+        <div className="w-1/3 flex justify-end">
           <a
             href="#contato"
-            className="px-5 py-2 lg:px-6 lg:py-2.5 rounded-full border border-ink/20 text-sm hover:bg-ink hover:text-background transition-all duration-300"
+            className="px-5 py-2.5 bg-ink text-background hover:opacity-80 flex items-center gap-2 text-sm font-medium transition-opacity"
           >
-            Contato
+            Contato <span className="text-xs">↗</span>
           </a>
         </div>
-      </motion.nav>
+      </nav>
 
-      {/* ROW 1: Filosofia e Localização — no mobile vira o 3º bloco (depois da linha) */}
-      <div className="order-3 md:order-none grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-8 pb-6">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...transition, delay: 0.2 }}
-          className="lg:col-span-5 flex flex-col gap-4"
-        >
-          <h3 className="font-mono text-xs md:text-sm text-ink-soft">
-            Nossa filosofia
-          </h3>
-          <p className="text-sm text-ink-soft font-light leading-relaxed max-w-sm">
-            Construindo arquiteturas robustas e interfaces de alta performance.
-            Elevando a qualidade através de código limpo e design impecável.
-          </p>
-        </motion.div>
+      {/* 2. CONTEÚDO CENTRAL - Pequeno, delicado e direto ao ponto */}
+      <div className="flex-1 flex flex-col items-center justify-center px-6 text-center z-10 -mt-12 md:-mt-20">
+        <div ref={iconRef} className="mb-6 text-ink/40">
+          {/* Ícone de globo minimalista, idêntico à vibe da referência */}
+          <svg
+            width="36"
+            height="36"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="0.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="2" y1="12" x2="22" y2="12"></line>
+            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+          </svg>
+        </div>
 
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ ...transition, delay: 0.3 }}
-          className="lg:col-span-7 flex flex-col gap-1 text-sm font-light text-ink-soft lg:items-start"
+        <p
+          ref={textRef}
+          className="max-w-md text-sm md:text-base text-ink/70 font-light leading-relaxed"
         >
-          <p>
-            Baseado em Chapecó, SC — BR{" "}
-            {time && <span className="text-ink">({time})</span>}
-          </p>
-          <p className="flex items-center gap-2">
-            Desenvolvedor Front-end
-          </p>
-        </motion.div>
+          Construindo arquiteturas robustas e interfaces de alta performance.
+          <br />
+          <br />
+          Elevando a qualidade através de código limpo e design impecável.
+        </p>
       </div>
 
-      {/* Linha Divisória — no mobile vira o 2º bloco, entre o texto grande e a filosofia */}
-      <motion.div
-        initial={{ scaleX: 0, opacity: 0 }}
-        animate={{ scaleX: 1, opacity: 1 }}
-        transition={{ duration: 1.5, ease: [0.76, 0, 0.24, 1], delay: 0.4 }}
-        className="order-2 md:order-none w-full h-[1px] bg-ink/10 origin-left mb-6 md:mb-8 lg:mb-10"
-      />
-
-      {/* ROW 2: Texto Gigante e Imagem — no mobile vira o 1º bloco (fica em cima) */}
-      <div className="order-1 md:order-none grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-6 flex-none md:flex-1 items-end pb-2 mb-6 md:mb-0">
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ ...transition, delay: 0.8 }}
-          className="lg:col-span-4 hidden lg:flex flex-col justify-end h-full pb-2"
+      {/* 3. TIPOGRAFIA GIGANTE NO RODAPÉ */}
+      <div className="w-full flex justify-center items-end overflow-hidden pb-0">
+        <h1
+          ref={titleRef}
+          // text-[18vw] faz o texto escalar perfeitamente com a largura da tela
+          // leading-[0.75] remove o espaçamento extra em baixo da fonte para colar no fundo
+          className="font-display font-bold text-[18vw] leading-[0.75] tracking-tighter text-ink uppercase whitespace-nowrap select-none"
         >
-          <div className="w-full max-w-[260px] xl:max-w-[300px] aspect-[4/3] bg-ink/5 flex items-center justify-center relative overflow-hidden group">
-            <img
-              src={mockupImg}
-              alt="Mockup do projeto"
-              className="absolute inset-0 w-full h-full object-contain"
-            />
-          </div>
-        </motion.div>
-
-        <div className="lg:col-span-8 flex flex-col items-start w-full">
-          <div className="overflow-hidden mb-4 lg:mb-6">
-            <motion.p
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              transition={{ ...transition, delay: 0.5 }}
-              className="font-mono text-xs md:text-sm text-ink-soft flex items-center gap-2"
-            >
-              Disponível para novos projetos
-            </motion.p>
-          </div>
-
-          <h1 className="font-display font-medium text-[8.5vw] sm:text-[7vw] lg:text-[4.5vw] xl:text-[4vw] leading-[0.95] tracking-tighter text-ink mb-8 lg:mb-10 w-fit">
-            <div className="overflow-hidden">
-              <motion.span
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                transition={{ ...transition, delay: 0.55 }}
-                className="block"
-              >
-                Desenvolvimento
-              </motion.span>
-            </div>
-            <div className="overflow-hidden">
-              <motion.span
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                transition={{ ...transition, delay: 0.6 }}
-                className="block"
-              >
-                como equilíbrio
-              </motion.span>
-            </div>
-            <div className="overflow-hidden">
-              <motion.span
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                transition={{ ...transition, delay: 0.65 }}
-                className="block"
-              >
-                entre estrutura
-              </motion.span>
-            </div>
-            <div className="overflow-hidden">
-              <motion.span
-                initial={{ y: "100%" }}
-                animate={{ y: 0 }}
-                transition={{ ...transition, delay: 0.7 }}
-                className="block"
-              >
-                e emoção.
-              </motion.span>
-            </div>
-          </h1>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ ...transition, delay: 0.9 }}
-            className="flex flex-col gap-2"
-          >
-            <p className="text-xs md:text-sm text-ink-soft">
-              Vamos construir algo incrível
-            </p>
-            <a
-              href="#contato"
-              className="text-base md:text-lg font-medium border-b border-ink/30 pb-1 w-fit hover:border-ink transition-colors duration-300"
-            >
-              Iniciar um projeto
-            </a>
-          </motion.div>
-        </div>
+          FRONT-END
+        </h1>
       </div>
     </section>
   );

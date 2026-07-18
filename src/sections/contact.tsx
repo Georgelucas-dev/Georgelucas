@@ -1,152 +1,131 @@
 // sections/contact.tsx
-import { useState, type FormEvent } from "react";
+import { useRef, useLayoutEffect } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 
-import { motion } from "motion/react";
-
-const API_URL = import.meta.env.VITE_API_URL ?? "/api";
-
-function Contact() {
-  const [status, setStatus] = useState<"idle" | "sending" | "sent" | "error">(
-    "idle",
-  );
-  const [message, setMessage] = useState("");
-
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setStatus("sending");
-    setMessage("");
-
-    const formData = new FormData(e.currentTarget);
-    const payload = {
-      name: String(formData.get("name") ?? "").trim(),
-      email: String(formData.get("email") ?? "").trim(),
-      message: String(formData.get("message") ?? "").trim(),
-    };
-
-    try {
-      const response = await fetch(`${API_URL}/contact`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const rawText = await response.text();
-      let data: { message?: string } | null = null;
-
-      if (rawText) {
-        try {
-          data = JSON.parse(rawText) as { message?: string };
-        } catch {
-          data = null;
-        }
-      }
-
-      if (response.ok) {
-        setStatus("sent");
-        setMessage("Mensagem enviada. Vou responder em breve.");
-        if (e.currentTarget) {
-          e.currentTarget.reset();
-        }
-      } else {
-        setStatus("error");
-        setMessage(
-          "Desculpe, sua mensagem não pôde ser enviada agora. Por favor, tente novamente mais tarde ou entre em contato comigo diretamente.",
-        );
-        console.error(
-          "Contact form submission failed:",
-          data?.message ?? rawText,
-        );
-      }
-    } catch (error) {
-      setStatus("error");
-      setMessage(
-        "Desculpe, sua mensagem não pôde ser enviada agora. Por favor, tente novamente mais tarde ou entre em contato comigo diretamente.",
-      );
-      console.error("Contact form submission error:", error);
-    }
-  };
-
-  return (
-    <section
-      id="contact"
-      className="min-h-screen bg-background text-foreground font-sans lg:px-30 px-6 py-24 flex flex-col justify-center"
-    >
-      <motion.div
-        className="w-full"
-        initial={{ opacity: 0, y: 50 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
-      >
-        <p className="text-4xl text-zinc-500 mb-4">Contato</p>
-        <h2 className="text-5xl font-bold mb-16 max-w-xl">
-          Vamos conversar sobre seu próximo projeto.
-        </h2>
-
-        <form onSubmit={handleSubmit} className="max-w-xl flex flex-col gap-8">
-          <div className="flex flex-col gap-2 border-b-2 border-zinc-300 pb-2">
-            <label htmlFor="name" className="text-xs text-zinc-500">
-              Nome
-            </label>
-            <input
-              id="name"
-              name="name"
-              type="text"
-              required
-              className="bg-transparent text-lg outline-none placeholder:text-zinc-400"
-              placeholder="Seu nome"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2 border-b-2 border-zinc-300 pb-2 ">
-            <label htmlFor="email" className="text-xs text-zinc-500">
-              Email
-            </label>
-            <input
-              id="email"
-              name="email"
-              type="email"
-              required
-              className="bg-transparent text-lg outline-none placeholder:text-zinc-400"
-              placeholder="voce@email.com"
-            />
-          </div>
-
-          <div className="flex flex-col gap-2 border-b-2 border-zinc-300 pb-2">
-            <label htmlFor="message" className="text-xs text-zinc-500">
-              Mensagem
-            </label>
-            <textarea
-              id="message"
-              name="message"
-              required
-              rows={3}
-              className="bg-transparent text-lg outline-none resize-none placeholder:text-zinc-400"
-              placeholder="Me conte um pouco sobre o projeto..."
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={status === "sending"}
-            className="self-start text-sm border-b-2 border-black pb-1 hover:text-zinc-500 hover:border-zinc-500 transition-colors disabled:opacity-50"
-          >
-            {status === "sending" ? "Enviando..." : "Enviar mensagem →"}
-          </button>
-
-          {status === "sent" && message && (
-            <p className="text-sm text-zinc-500">{message}</p>
-          )}
-          {status === "error" && message && (
-            <p className="text-sm text-red-500">{message}</p>
-          )}
-        </form>
-      </motion.div>
-    </section>
-  );
+if (typeof window !== "undefined") {
+  gsap.registerPlugin(ScrollTrigger);
 }
 
-export default Contact;
+export default function Contact() {
+  const containerRef = useRef<HTMLElement>(null);
+  const circleRef = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLHeadingElement>(null);
+  const linksRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    if (!containerRef.current) return;
+
+    const ctx = gsap.context(() => {
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top",
+          end: "+=150%",
+          scrub: 1,
+          pin: true,
+          anticipatePin: 1,
+        },
+      });
+
+      tl.to(
+        circleRef.current,
+        {
+          // Aumentamos a escala drásticamente porque a bolinha inicial agora é bem pequena
+          scale: 35,
+          ease: "power2.inOut",
+        },
+        0,
+      );
+
+      tl.fromTo(
+        titleRef.current,
+        { x: "100%" },
+        {
+          x: 0,
+          ease: "power2.out",
+        },
+        0,
+      );
+
+      tl.fromTo(
+        linksRef.current,
+        { opacity: 0, y: 30 },
+        {
+          opacity: 1,
+          y: 0,
+          ease: "power2.out",
+        },
+        0.3,
+      );
+    }, containerRef);
+
+    return () => ctx.revert();
+  }, []);
+
+  return (
+    <div className="w-full overflow-x-clip bg-background">
+      <section
+        id="contact"
+        ref={containerRef}
+        className="relative w-full h-[100svh] overflow-hidden flex items-center justify-center"
+      >
+        {/* 
+          A BOLINHA INICIAL
+          Reduzida de 60vw para 10vw (e a margem negativa para metade do tamanho: 5vw)
+        */}
+        <div
+          ref={circleRef}
+          className="absolute top-full left-1/2 w-[10vw] h-[10vw] -mt-[5vw] -ml-[5vw] rounded-full bg-foreground will-change-transform"
+        />
+
+        <div className="relative z-10 w-full h-full flex flex-col justify-between px-6 md:px-12 lg:px-24 pt-24 pb-12 text-background">
+          <div className="flex-1 flex items-center">
+            <h2
+              ref={titleRef}
+              className="font-display font-bold text-[14vw] leading-[0.8] tracking-tighter uppercase whitespace-nowrap will-change-transform"
+            >
+              Contact
+            </h2>
+          </div>
+
+          <div
+            ref={linksRef}
+            className="flex flex-col gap-1 font-mono text-xs sm:text-sm uppercase tracking-widest font-semibold will-change-transform"
+          >
+            <a
+              href="https://wa.me/55SEUNUMEROAQUI"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:opacity-50 transition-opacity w-fit py-1"
+            >
+              WhatsApp
+            </a>
+            <a
+              href="mailto:seuemail@gmail.com"
+              className="hover:opacity-50 transition-opacity w-fit py-1"
+            >
+              Gmail
+            </a>
+            <a
+              href="https://github.com/seugithub"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:opacity-50 transition-opacity w-fit py-1"
+            >
+              GitHub
+            </a>
+            <a
+              href="https://linkedin.com/in/seulinkedin"
+              target="_blank"
+              rel="noreferrer"
+              className="hover:opacity-50 transition-opacity w-fit py-1"
+            >
+              LinkedIn
+            </a>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+}
