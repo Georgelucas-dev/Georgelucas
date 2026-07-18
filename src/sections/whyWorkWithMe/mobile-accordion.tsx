@@ -36,15 +36,10 @@ export function MobileAccordion({ pillars }: { pillars: Pillar[] }) {
                 Grid resolve altura no compositor.
                 content-visibility: auto libera trabalho de layout/paint
                 nos itens colapsados sem removê-los do DOM.
-
-                Nota: animar grid-template-rows dispara layout a cada frame
-                (não é GPU-compositável como transform/opacity). Restringimos
-                a transition só às duas props que mudam, em vez de "all",
-                pra reduzir o trabalho que o browser precisa observar.
               */}
               <div
                 className={cn(
-                  "grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
+                  "grid transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
                   isActive
                     ? "grid-rows-[1fr] opacity-100"
                     : "grid-rows-[0fr] opacity-0 pointer-events-none",
@@ -52,49 +47,48 @@ export function MobileAccordion({ pillars }: { pillars: Pillar[] }) {
                 style={{
                   willChange: isActive ? "grid-template-rows, opacity" : "auto",
                   contentVisibility: isActive ? "visible" : "auto",
-                  containIntrinsicSize: "0 400px",
+                  containIntrinsicSize: "0 600px",
                 }}
                 aria-hidden={!isActive}
               >
                 <div className="overflow-hidden">
-                  {/*
-                    Entrada própria do conteúdo (fade + slide sutil),
-                    desacoplada da animação do grid. Isso dá a sensação
-                    de "cascata" em vez do texto só aparecer colado
-                    à expansão do container.
-                  */}
-                  <div
-                    className={cn(
-                      "flex flex-col font-sans text-sm text-foreground pb-12 pt-4 transition-all duration-500 ease-[cubic-bezier(0.16,1,0.3,1)]",
-                      isActive
-                        ? "opacity-100 translate-y-0 delay-100"
-                        : "opacity-0 -translate-y-2",
-                    )}
-                  >
-                    <div className="flex flex-col border-t border-border/40 py-4 gap-2">
-                      <span className="text-muted-foreground font-mono uppercase tracking-wider text-[10px]">
-                        Overview
-                      </span>
-                      <p className="text-muted-foreground leading-relaxed text-sm">
-                        {pillar.overview}
-                      </p>
+                  <div className="flex flex-col gap-6 pb-12 pt-4">
+                    <div className="relative aspect-4/3 w-full overflow-hidden bg-zinc-900 shrink-0 transform-gpu">
+                      <img
+                        src={pillar.image}
+                        alt={pillar.title}
+                        loading="lazy"
+                        decoding="async"
+                        className="absolute inset-0 h-full w-full object-cover"
+                      />
                     </div>
 
-                    <div className="flex flex-col border-t border-b border-border/40 py-4 gap-2">
-                      <span className="text-muted-foreground font-mono uppercase tracking-wider text-[10px]">
-                        Garantia
-                      </span>
-                      <div className="grid grid-cols-2 gap-y-4 gap-x-2">
-                        {pillar.metrics.map((metric) => (
-                          <div key={metric.label} className="flex flex-col">
-                            <span className="text-[10px] text-muted-foreground">
-                              {metric.label}
-                            </span>
-                            <span className="text-sm font-semibold mt-0.5">
-                              {metric.value}
-                            </span>
-                          </div>
-                        ))}
+                    <div className="flex flex-col font-sans text-sm text-foreground transform-gpu">
+                      <div className="flex flex-col border-t border-border/40 py-4 gap-2">
+                        <span className="text-muted-foreground font-mono uppercase tracking-wider text-[10px]">
+                          Overview
+                        </span>
+                        <p className="text-muted-foreground leading-relaxed text-sm">
+                          {pillar.overview}
+                        </p>
+                      </div>
+
+                      <div className="flex flex-col border-t border-b border-border/40 py-4 gap-2">
+                        <span className="text-muted-foreground font-mono uppercase tracking-wider text-[10px]">
+                          Garantia
+                        </span>
+                        <div className="grid grid-cols-2 gap-y-4 gap-x-2">
+                          {pillar.metrics.map((metric) => (
+                            <div key={metric.label} className="flex flex-col">
+                              <span className="text-[10px] text-muted-foreground">
+                                {metric.label}
+                              </span>
+                              <span className="text-sm font-semibold mt-0.5">
+                                {metric.value}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
                     </div>
                   </div>

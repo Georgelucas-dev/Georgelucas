@@ -1,6 +1,6 @@
 // src/sections/whyWorkWithMe/index.tsx
 import { useRef, useState, useEffect } from "react";
-import { useScroll, useTransform, useSpring } from "motion/react";
+import { useScroll, useTransform, useSpring, useMotionValueEvent } from "motion/react";
 import { pillars } from "../../data/pillars-data";
 import { PillarDetails } from "./pillar-details";
 import { PillarList } from "./pillar-list";
@@ -12,6 +12,7 @@ const ITEM_HEIGHT = 120;
 
 export default function WhyWorkWithMe() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
@@ -27,31 +28,37 @@ export default function WhyWorkWithMe() {
     offset: ["start start", "end end"],
   });
 
-  // Contínuo — usado só pra posicionar (scroll) a lista suavemente.
+  // Índice fracionado (contínuo) — usado só para a lista deslizar suavemente.
+  // NÃO dispara re-render em React.
   const fractionalIndex = useTransform(scrollYProgress, (v) => {
     const raw = v * pillars.length;
     return Math.max(0, Math.min(raw, pillars.length - 1));
   });
 
-  // Discreto — sempre um índice inteiro válido (0..length-1).
-  // Por estar clampado, NUNCA existe um estado "nada selecionado":
-  // sempre há exatamente um item ativo, o que era o pedido.
-  const activeIndex = useTransform(fractionalIndex, (v) => Math.round(v));
-
+  // Alvo do Y da lista, também contínuo.
   const rawY = useTransform(
     fractionalIndex,
-    (i) => ((pillars.length - 1) / 2 - i) * ITEM_HEIGHT,
+    (i) => ((pillars.length - 1) / 2 - Math.floor(i)) * ITEM_HEIGHT,
   );
 
+  // Spring aplicada uma única vez sobre o MotionValue.
+  // A spring nunca "reinicia" — apenas persegue o alvo continuamente.
   const smoothY = useSpring(rawY, {
     stiffness: 90,
     damping: 22,
     mass: 0.7,
   });
 
+  // Índice discreto (para textos/imagem) — só muda quando muda.
+  useMotionValueEvent(fractionalIndex, "change", (latest) => {
+    if (isMobile) return;
+    const next = Math.floor(latest);
+    setActiveIndex((cur) => (next !== cur ? next : cur));
+  });
+
   return (
     <>
-      <div className="px-6 lg:px-16 xl:px-30 pt-16 md:pt-24 pb-8 md:pb-12 bg-background">
+      <div className="px-6 lg:px-16 xl:px-30 pt-16 md:pt-24 bg-background">
         <h2 className="font-display text-5xl md:text-5xl font-bold tracking-tight text-foreground">
           Por que trabalhar comigo
         </h2>
@@ -68,11 +75,11 @@ export default function WhyWorkWithMe() {
           style={{ height: `${pillars.length * VH_PER_ITEM}vh` }}
         >
           <div
-            className="sticky top-0 flex h-svh w-full overflow-hidden px-6 lg:px-16 xl:px-30 bg-background md:grid md:grid-cols-12 md:gap-x-12 lg:gap-x-20 xl:gap-x-24"
+            className="sticky top-0 flex h-svh w-full grid-cols-12 overflow-hidden px-6 lg:px-16 xl:px-30 bg-background md:grid"
             style={{
               contain: "layout paint",
               transform: "translateZ(0)",
-              willChange: "transform",
+              backfaceVisibility: "hidden",
             }}
           >
             <PillarDetails pillars={pillars} activeIndex={activeIndex} />

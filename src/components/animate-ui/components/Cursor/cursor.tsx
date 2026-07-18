@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { createPortal } from "react-dom";
 import "./cursor.css";
 
 type CursorState = "default" | "link" | "text" | "hidden";
@@ -8,20 +7,20 @@ export default function Cursor() {
   const dotRef = useRef<HTMLDivElement>(null);
   const ringRef = useRef<HTMLDivElement>(null);
 
+  // Posição real do mouse
   const mouse = useRef({ x: 0, y: 0 });
+
+  // Posições animadas
   const dotPos = useRef({ x: 0, y: 0 });
   const ringPos = useRef({ x: 0, y: 0 });
 
-  const scale = useRef(1); // escala atual do anel (lerp)
-  const pressedRef = useRef(false);
-  const hasMoved = useRef(false);
-
   const raf = useRef<number | null>(null);
 
-  const [state, setState] = useState<CursorState>("hidden"); // some até o 1º movimento
+  const [state, setState] = useState<CursorState>("default");
   const [enabled, setEnabled] = useState(true);
   const [pressed, setPressed] = useState(false);
 
+  // Detecta se é touch para desativar
   useEffect(() => {
     const isTouch =
       "ontouchstart" in window ||
@@ -36,40 +35,26 @@ export default function Cursor() {
     const onMove = (e: MouseEvent) => {
       mouse.current.x = e.clientX;
       mouse.current.y = e.clientY;
-
-      // Primeiro movimento: teletransporta o cursor pra posição real
-      // em vez de deixar ele "voar" do canto (0,0) até o mouse.
-      if (!hasMoved.current) {
-        hasMoved.current = true;
-        dotPos.current.x = ringPos.current.x = e.clientX;
-        dotPos.current.y = ringPos.current.y = e.clientY;
-        setState((s) => (s === "hidden" ? "default" : s));
-      }
     };
 
-    const onDown = () => {
-      pressedRef.current = true;
-      setPressed(true);
-    };
-    const onUp = () => {
-      pressedRef.current = false;
-      setPressed(false);
-    };
+    const onDown = () => setPressed(true);
+    const onUp = () => setPressed(false);
 
+    // Esconde ao sair da janela do navegador
     const onLeave = () => setState("hidden");
-    const onEnter = () => {
-      if (hasMoved.current) setState("default");
-    };
+    const onEnter = () => setState("default");
 
+    // Lógica para achar interações
     const onOver = (e: MouseEvent) => {
       const t = e.target as HTMLElement;
-      if (!t?.closest) return;
 
+      // 1. Esconder forçado
       if (t.closest('[data-cursor="hidden"]')) {
         setState("hidden");
         return;
       }
 
+      // 2. Elementos Interativos Naturais e explícitos
       const isLink = t.closest(
         'a, button, [role="button"], input, [data-cursor="link"]',
       );
@@ -78,6 +63,7 @@ export default function Cursor() {
         return;
       }
 
+      // 3. Textos Exclusivos (Você precisa adicionar data-cursor="text" no HTML agora)
       const isText = t.closest('[data-cursor="text"]');
       if (isText) {
         setState("text");
@@ -94,23 +80,22 @@ export default function Cursor() {
     document.addEventListener("mouseleave", onLeave);
     document.addEventListener("mouseenter", onEnter);
 
+    // Loop de Animação (Lerp)
     const tick = () => {
+      // Bolinha (rápida, lerp alto ou 1.0 para colar no mouse)
       dotPos.current.x += (mouse.current.x - dotPos.current.x) * 0.8;
       dotPos.current.y += (mouse.current.y - dotPos.current.y) * 0.8;
 
+      // Anel Seguidor (mais lento, cria o rastro)
       ringPos.current.x += (mouse.current.x - ringPos.current.x) * 0.15;
       ringPos.current.y += (mouse.current.y - ringPos.current.y) * 0.15;
-
-      // Escala do anel também "lerpada" — dá o feedback suave no clique
-      const targetScale = pressedRef.current ? 0.85 : 1;
-      scale.current += (targetScale - scale.current) * 0.25;
 
       if (dotRef.current) {
         dotRef.current.style.transform = `translate3d(${dotPos.current.x}px, ${dotPos.current.y}px, 0) translate(-50%, -50%)`;
       }
 
       if (ringRef.current) {
-        ringRef.current.style.transform = `translate3d(${ringPos.current.x}px, ${ringPos.current.y}px, 0) translate(-50%, -50%) scale(${scale.current})`;
+        ringRef.current.style.transform = `translate3d(${ringPos.current.x}px, ${ringPos.current.y}px, 0) translate(-50%, -50%)`;
       }
 
       raf.current = requestAnimationFrame(tick);
@@ -131,7 +116,7 @@ export default function Cursor() {
 
   if (!enabled) return null;
 
-  return createPortal(
+  return (
     <>
       <div
         ref={ringRef}
@@ -143,7 +128,6 @@ export default function Cursor() {
         className={`aw-cursor-dot aw-state-${state}`}
         aria-hidden
       />
-    </>,
-    document.body,
+    </>
   );
 }

@@ -1,54 +1,64 @@
 // src/sections/whyWorkWithMe/pillar-list.tsx
-import { motion, MotionValue, useTransform, useSpring } from "motion/react";
-import { type Pillar } from "../../data/pillars-data";
+import type { Pillar } from "../../data/pillars-data";
+import { motion, type MotionValue } from "motion/react";
 
 interface PillarListProps {
   pillars: Pillar[];
-  y: MotionValue<number>;
-  activeIndex: MotionValue<number>;
+  activeIndex: number;
   itemHeight: number;
+  /** MotionValue contínua para o deslocamento vertical. */
+  y: MotionValue<number>;
 }
 
 export function PillarList({
   pillars,
-  y,
   activeIndex,
   itemHeight,
+  y,
 }: PillarListProps) {
+  const activePillar = pillars[activeIndex];
+
   return (
-    <div className="col-span-6 flex flex-col justify-center h-full relative">
-      <motion.div style={{ y }} className="flex flex-col items-start w-full">
-        {pillars.map((pillar, i) => {
-          // Alvo binário: 1 quando ESTE é o item mais próximo do scroll,
-          // 0 nos demais. activeIndex sempre aponta pra um item válido,
-          // então sempre existe um alvo 1 — nunca "nenhum".
-          const target = useTransform(activeIndex, (idx) =>
-            idx === i ? 1 : 0,
-          );
-          const highlight = useSpring(target, {
-            stiffness: 260,
-            damping: 30,
-          });
+    <div className="col-span-12 md:col-span-7 relative flex items-center justify-center h-[35svh] md:h-full border-t md:border-t-0 md:border-l border-border/10">
+      <div className="absolute left-4 md:left-8 font-mono text-xs md:text-sm text-muted-foreground tracking-widest hidden sm:block">
+        {activePillar?.index || "01"}
+      </div>
 
-          const color = useTransform(
-            highlight,
-            [0, 1],
-            ["rgba(255, 255, 255, 0.35)", "rgba(255, 255, 255, 1)"],
-          );
-
-          return (
-            <motion.div
-              key={pillar.id}
-              style={{ height: itemHeight, color }}
-              className="flex items-center w-full"
-            >
-              <h2 className="font-display text-4xl md:text-5xl font-bold">
-                {pillar.title}
-              </h2>
-            </motion.div>
-          );
-        })}
-      </motion.div>
+      {/* Wrapper da máscara isolado — evita repaint amplo durante o scroll. */}
+      <div
+        className="relative flex items-center justify-center w-full h-full overflow-hidden px-4 md:px-24"
+        style={{
+          maskImage:
+            "linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)",
+          WebkitMaskImage:
+            "linear-gradient(to bottom, transparent, black 20%, black 80%, transparent)",
+          contain: "layout paint",
+        }}
+      >
+        <motion.div
+          style={{ y, willChange: "transform" }}
+          className="absolute flex flex-col items-center w-full transform-gpu"
+        >
+          {pillars.map((pillar, i) => {
+            const isActive = i === activeIndex;
+            return (
+              <div
+                key={pillar.id}
+                style={{ height: itemHeight }}
+                className="flex items-center justify-center w-full text-center"
+              >
+                <h2
+                  className={`font-display font-black uppercase tracking-[-0.05em] select-none text-2xl md:text-[3.5vw] transition-colors duration-500 ease-out ${
+                    isActive ? "text-foreground" : "text-muted-foreground/35"
+                  }`}
+                >
+                  {pillar.title}
+                </h2>
+              </div>
+            );
+          })}
+        </motion.div>
+      </div>
     </div>
   );
 }
