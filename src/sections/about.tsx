@@ -1,5 +1,5 @@
 // src/sections/AboutMe.tsx
-import { useState, useRef, useLayoutEffect } from "react";
+import { useRef, useLayoutEffect } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { aboutData } from "../data/about-data";
@@ -9,24 +9,23 @@ if (typeof window !== "undefined") {
 }
 
 export function About() {
-  const [activeId, setActiveId] = useState<string | null>(null);
-
   const containerRef = useRef<HTMLElement>(null);
+  const textContainerRef = useRef<HTMLDivElement>(null);
   const imageWrapperRef = useRef<HTMLDivElement>(null);
-  const imagesRef = useRef<HTMLDivElement>(null);
+  const imageRef = useRef<HTMLImageElement>(null);
 
   useLayoutEffect(() => {
     if (!containerRef.current) return;
 
     const ctx = gsap.context(() => {
       // ==========================================
-      // 1. ANIMAÇÃO DE ENTRADA (Blur e Imagem)
+      // 1. ANIMAÇÃO DE ENTRADA (Blur + Revelação)
       // ==========================================
       const entranceTl = gsap.timeline({
         scrollTrigger: {
           trigger: containerRef.current,
-          start: "top 80%",
-          end: "top 20%",
+          start: "top 85%",
+          end: "top 25%",
           scrub: 1,
           invalidateOnRefresh: true,
         },
@@ -47,31 +46,38 @@ export function About() {
       );
 
       entranceTl.fromTo(
-        imagesRef.current,
+        imageRef.current,
         { scale: 1.3 },
         { scale: 1, duration: 1 },
         0,
       );
 
       // ==========================================
-      // 2. PARALLAX CONTÍNUO (Texto)
+      // 2. EFEITO PARALLAX EXTREMO (Velocidades)
       // ==========================================
-      const parallaxTexts = gsap.utils.toArray(".gsap-parallax-text");
-
-      gsap.fromTo(
-        parallaxTexts,
-        { y: -40 }, // Começa 40px acima da posição original
-        {
-          y: 40, // Termina 40px abaixo (movimento oposto ao scroll)
-          stagger: 0.05, // Um leve atraso entre cada palavra/frase
-          ease: "none", // Mantém a velocidade constante em relação ao scroll
-          scrollTrigger: {
-            trigger: containerRef.current,
-            start: "top bottom", // Inicia assim que a seção aponta na tela
-            end: "bottom top", // Termina quando a seção sai da tela
-            scrub: 1, // Suaviza o movimento acompanhando o scroll
-          },
+      const parallaxTl = gsap.timeline({
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 1,
         },
+      });
+
+      // TEXTO: Aumentado de 80 para 200. Ele vai percorrer 400px no total, movendo-se MUITO rápido.
+      parallaxTl.fromTo(
+        textContainerRef.current,
+        { y: 400 },
+        { y: -400, ease: "none" },
+        0,
+      );
+
+      // IMAGEM: Aumentado levemente de 20 para 30 para manter a diferença de velocidade brutal.
+      parallaxTl.fromTo(
+        imageWrapperRef.current,
+        { y: 30 },
+        { y: -30, ease: "none" },
+        0,
       );
     }, containerRef);
 
@@ -85,35 +91,31 @@ export function About() {
       className="relative min-h-[100svh] w-full bg-background text-ink flex items-center overflow-hidden py-24 md:py-32"
     >
       <div className="w-full pl-6 md:pl-16 lg:pl-24 flex flex-col md:flex-row items-center justify-between gap-12 lg:gap-20">
-        {/* COLUNA ESQUERDA - TEXTO */}
-        <div className="w-full md:w-7/12 flex flex-col justify-center pr-6 md:pr-0">
-          <p className="gsap-parallax-text inline-block text-xs font-mono uppercase tracking-[0.2em] text-ink-soft mb-8 md:mb-10 will-change-transform">
+        {/* COLUNA ESQUERDA - TEXTO (Animação Muito Rápida) */}
+        <div
+          ref={textContainerRef}
+          className="w-full md:w-7/12 flex flex-col justify-center pr-6 md:pr-0 will-change-transform"
+        >
+          <p className="inline-block text-xs font-mono uppercase tracking-[0.2em] text-ink-soft mb-8 md:mb-10">
             {aboutData.eyebrow}
           </p>
 
-          <h2 className="font-display text-xl md:text-3xl lg:text-4xl leading-[1.25] tracking-tight max-w-4xl">
+          <h2 className="font-display text-2xl md:text-4xl lg:text-5xl leading-[1.2] tracking-tight max-w-4xl">
             {aboutData.segments.map((segment, i) =>
               segment.type === "highlight" ? (
                 <span
                   key={i}
-                  onMouseEnter={() => setActiveId(segment.imageId)}
-                  onMouseLeave={() => setActiveId(null)}
-                  className="gsap-parallax-text inline-block italic font-serif text-ink-soft hover:text-ink transition-colors duration-300 cursor-pointer relative z-10 mx-1 will-change-transform"
+                  className="inline-block italic font-serif text-ink-soft mx-1"
                 >
                   {segment.content}
                 </span>
               ) : (
-                <span
-                  key={i}
-                  className="gsap-parallax-text inline-block will-change-transform"
-                >
-                  {segment.content}
-                </span>
+                <span key={i}>{segment.content}</span>
               ),
             )}
           </h2>
 
-          <div className="gsap-parallax-text mt-10 md:mt-12 pl-0 md:pl-[20%] flex flex-col gap-4 will-change-transform">
+          <div className="mt-12 md:mt-16 pl-0 md:pl-[15%] flex flex-col gap-4">
             <p className="text-xs md:text-sm text-ink-soft max-w-sm leading-relaxed font-sans">
               Meu nome é Seu Nome. Um criador apaixonado por resolver problemas
               complexos através de interfaces intuitivas, sempre buscando a
@@ -125,38 +127,20 @@ export function About() {
           </div>
         </div>
 
-        {/* COLUNA DIREITA - IMAGENS */}
-        <div className="w-full md:w-5/12 h-[55vh] md:h-[82vh] flex justify-end">
+        {/* COLUNA DIREITA - IMAGEM (Animação Lenta) */}
+        <div className="w-full md:w-5/12 h-[60vh] md:h-[80vh] flex justify-end">
           <div
             ref={imageWrapperRef}
-            className="relative w-full h-full rounded-l-3xl md:rounded-l-[5rem] overflow-hidden bg-card"
+            className="relative w-full h-full rounded-l-3xl md:rounded-l-[5rem] overflow-hidden bg-card will-change-transform"
           >
-            <div ref={imagesRef} className="w-full h-full">
-              <img
-                src={aboutData.defaultImage}
-                alt="Retrato"
-                className="absolute inset-0 h-full w-full object-cover transition-all duration-700 ease-in-out will-change-[opacity,filter]"
-                style={{
-                  opacity: activeId ? 0 : 1,
-                  filter: activeId ? "blur(14px)" : "blur(0px)",
-                }}
-              />
-
-              {aboutData.images.map((img) => (
-                <img
-                  key={img.id}
-                  src={img.image}
-                  alt={`Representação de ${img.id}`}
-                  className="absolute inset-0 h-full w-full object-cover transition-all duration-700 ease-in-out will-change-[opacity,filter]"
-                  style={{
-                    opacity: activeId === img.id ? 1 : 0,
-                    filter: activeId === img.id ? "blur(0px)" : "blur(14px)",
-                  }}
-                />
-              ))}
-
-              <div className="absolute inset-0 bg-background/10 mix-blend-overlay pointer-events-none" />
-            </div>
+            <img
+              ref={imageRef}
+              src={aboutData.defaultImage}
+              alt="Retrato"
+              className="absolute inset-0 h-full w-full object-cover"
+            />
+            {/* Overlay sutil de contraste */}
+            <div className="absolute inset-0 bg-background/10 mix-blend-overlay pointer-events-none" />
           </div>
         </div>
       </div>

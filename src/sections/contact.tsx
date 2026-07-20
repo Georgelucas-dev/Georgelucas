@@ -99,7 +99,7 @@ export default function Contact() {
               ref={titleRef}
               className="font-display font-bold text-[14vw] leading-[0.8] tracking-tighter uppercase whitespace-nowrap will-change-transform"
             >
-              Contact
+              Contato
             </h2>
           </div>
 
