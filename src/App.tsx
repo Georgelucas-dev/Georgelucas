@@ -7,7 +7,7 @@ import Projects from "./sections/projects/projects";
 import Contact from "./sections/contact";
 import { ThemeProvider } from "./context/ThemeContext";
 import Navbar from "./components/Navbar/navbar";
-import WhyWorkWithMe from "./sections/whyWorkWithMe/index";
+import WhyWorkWithMe from "./sections/WhyWorkWithMe";
 import { ServicesSection } from "./sections/ServicesSection";
 import gsap from "gsap";
 
@@ -82,8 +82,8 @@ function App() {
             <ServicesSection />
             <Projects />
             <About />
-            <WhyWorkWithMe />
-            <Contact />
+            <WhyWorkWithMe/>
+            {/* <Contact /> */}
             <VibePicker />
             <Footer />
           </main>
