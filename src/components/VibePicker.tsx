@@ -94,6 +94,8 @@ export default function VibePicker() {
     root.style.setProperty("--ink-soft", config.soft);
     root.style.setProperty("--card", config.surface);
     root.style.setProperty("--paper", config.surface);
+    root.style.setProperty("--clay", config.clay);
+    root.style.setProperty("--sage", config.sage);
     root.style.setProperty("--selection-background", config.foreground);
     root.style.setProperty("--selection-foreground", config.background);
   };

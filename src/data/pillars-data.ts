@@ -1,121 +1,60 @@
 // src/data/pillars-data.ts
 
-// 1. Importando as imagens explicitamente para o Vite processá-las
-import imgDesignModerno from "../assets/image/Design-moderno.webp";
-import imgConversion from "../assets/image/conversion.webp";
-import imgUxUi from "../assets/image/ux-ui.webp";
-import imgResponsivo from "../assets/image/responsivel.webp";
-import imgPerformance from "../assets/image/performace.webp";
-import imgSeo from "../assets/image/seo.webp";
-import imgVisualPremium from "../assets/image/visual-premiun.webp";
-
 export interface Pillar {
   id: string;
   index: string;
   title: string;
-  subtitle: string;
-  overview: string;
-  metrics: { label: string; value: string }[];
-  image: string; // Continua sendo string, pois o Vite converte o import na URL final
+  paragraph: string;
 }
 
 export const pillars: Pillar[] = [
   {
     id: "design-moderno",
     index: "01",
-    title: "DESIGN MODERNO",
-    subtitle: "Visual premium e estratégico",
-    overview:
-      "Design alinhado à identidade da sua marca, utilizando tendências atuais de mercado para criar uma autoridade imediata desde o primeiro contato.",
-    metrics: [
-      { label: "Estilo", value: "Premium" },
-      { label: "Marca", value: "Forte" },
-      { label: "Reconhecimento", value: "Alto" },
-    ],
-    image: imgDesignModerno,
+    title: "Design moderno",
+    paragraph:
+      "Um visual que comunica autoridade antes mesmo da primeira palavra ser lida. Cada escolha de cor, espaço e tipografia é feita para alinhar seu site à identidade real da sua marca.",
   },
   {
     id: "foco-conversao",
     index: "02",
-    title: "FOCO EM CONVERSÃO",
-    subtitle: "Estratégia focada em resultados",
-    overview:
-      "Cada botão, seção e chamada de ação é desenhado estrategicamente para guiar o visitante pelo funil até o fechamento do negócio.",
-    metrics: [
-      { label: "CTR", value: "Otimizado" },
-      { label: "Conversão", value: "Alta" },
-      { label: "ROI", value: "Focado" },
-    ],
-    image: imgConversion,
+    title: "Foco em conversão",
+    paragraph:
+      "Botões, seções e chamadas de ação são posicionados com intenção, guiando o visitante até a decisão de fechar negócio. Design bonito que também vende.",
   },
   {
     id: "ux-ui",
-    index: "04",
-    title: "UX/UI PROFISSIONAL",
-    subtitle: "Experiência fluida",
-    overview:
-      "Arquitetura de informação pensada para o usuário. Interface intuitiva que reduz a fricção e aumenta o tempo de permanência no site.",
-    metrics: [
-      { label: "Fricção", value: "Mínima" },
-      { label: "Navegação", value: "Fluida" },
-      { label: "Satisfação", value: "Máxima" },
-    ],
-    image: imgUxUi,
+    index: "03",
+    title: "UX/UI profissional",
+    paragraph:
+      "Arquitetura de informação pensada para reduzir fricção e manter o usuário no fluxo certo. Navegação intuitiva do primeiro clique até o contato.",
   },
   {
     id: "responsivo",
-    index: "05",
-    title: "100% RESPONSIVO",
-    subtitle: "Adaptação multiplataforma",
-    overview:
-      "O site se comporta como um aplicativo nativo em qualquer tela. Otimização perfeita do monitor ultrawide até o smartphone mais compacto.",
-    metrics: [
-      { label: "Compatibilidade", value: "100%" },
-      { label: "Smartphone", value: "Perfeito" },
-      { label: "Desktop", value: "Impecável" },
-    ],
-    image: imgResponsivo,
+    index: "04",
+    title: "100% responsivo",
+    paragraph:
+      "O site se comporta como algo nativo em qualquer tela, do ultrawide ao smartphone mais compacto. Nenhuma experiência é tratada como secundária.",
   },
   {
     id: "performance",
-    index: "06",
-    title: "Performance",
-    subtitle: "Performance de Elite",
-    overview:
-      "Site leve, rápido e eficiente. Foco total em Core Web Vitals para que o carregamento não seja um obstáculo entre você e seu cliente.",
-    metrics: [
-      { label: "Velocidade", value: "Máxima" },
-      { label: "LCP/CLS", value: "Excelente" },
-      { label: "Core Vitals", value: "Verde" },
-    ],
-    image: imgPerformance,
+    index: "05",
+    title: "Performance de elite",
+    paragraph:
+      "Código leve e carregamento rápido, com atenção total aos Core Web Vitals. A velocidade nunca é um obstáculo entre você e seu cliente.",
   },
   {
     id: "seo",
-    index: "07",
-    title: "SEO OTIMIZADO",
-    subtitle: "Visibilidade orgânica",
-    overview:
-      "Código semântico e estrutura técnica preparada para indexação. Seu projeto pronto para ser encontrado pelos mecanismos de busca.",
-    metrics: [
-      { label: "SEO", value: "Pronto" },
-      { label: "Busca", value: "Otimizada" },
-      { label: "Autoridade", value: "Crescente" },
-    ],
-    image: imgSeo,
+    index: "06",
+    title: "SEO otimizado",
+    paragraph:
+      "Estrutura semântica e técnica pensada para os mecanismos de busca desde a primeira linha de código. Seu projeto pronto para ser encontrado.",
   },
   {
-    id: "visual-premium",
-    index: "08",
-    title: "VISUAL PREMIUM",
-    subtitle: "Acabamento High-End",
-    overview:
-      "Atenção obsessiva aos detalhes. O acabamento que diferencia um site comum de uma experiência de agência digital de alto nível.",
-    metrics: [
-      { label: "Detalhes", value: "Obsessivos" },
-      { label: "Qualidade", value: "Elite" },
-      { label: "Valor", value: "Elevado" },
-    ],
-    image: imgVisualPremium,
+    id: "acabamento-premium",
+    index: "07",
+    title: "Acabamento premium",
+    paragraph:
+      "Atenção obsessiva aos detalhes que separam um site comum de uma experiência de agência de alto nível. É isso que fica na memória de quem visita.",
   },
 ];

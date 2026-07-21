@@ -1,7 +1,6 @@
 // components/Loader.tsx
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
-import { preloadPillarImages } from "../utils/preload-images";
 
 interface LoaderProps {
   onComplete: () => void;
@@ -19,13 +18,12 @@ export default function Loader({ onComplete }: LoaderProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const barRowRef = useRef<HTMLParagraphElement>(null);
   const cursorRef = useRef<HTMLSpanElement>(null);
-  
+
   // Refs para injetar texto direto no DOM (evita re-renders do React)
   const progressTextRef = useRef<HTMLSpanElement>(null);
   const asciiBarRef = useRef<HTMLSpanElement>(null);
 
   useEffect(() => {
-    let isImageLoaded = false;
     const counter = { val: 0 };
 
     const ctx = gsap.context((self) => {
@@ -49,7 +47,7 @@ export default function Loader({ onComplete }: LoaderProps) {
 
       // Usando array nativo do utilitário GSAP ao invés de Refs complexas
       const bootLines = self.selector?.(".boot-line");
-      
+
       bootLines?.forEach((line: HTMLElement, i: number) => {
         const textLength = line.textContent?.length || 20;
         introTl.fromTo(
@@ -75,12 +73,12 @@ export default function Loader({ onComplete }: LoaderProps) {
         .fromTo(
           ".name-char",
           { y: "110%", opacity: 0 },
-          { 
-            y: "0%", 
-            opacity: 1, 
-            duration: 0.8, 
-            stagger: 0.04, 
-            ease: "back.out(1.2)" 
+          {
+            y: "0%",
+            opacity: 1,
+            duration: 0.8,
+            stagger: 0.04,
+            ease: "back.out(1.2)",
           },
           ">-0.1",
         )
@@ -92,32 +90,28 @@ export default function Loader({ onComplete }: LoaderProps) {
         );
 
       // 2. PROGRESS COUNTER (Injeção direta no DOM)
-      const progressTween = gsap.to(counter, {
+      gsap.to(counter, {
         val: 99,
         duration: 2.8,
         ease: "power2.inOut",
         onUpdate: () => {
           const currentProg = Math.floor(counter.val);
           const filled = Math.round((currentProg / 100) * BAR_LENGTH);
-          const barString = "█".repeat(filled) + "░".repeat(BAR_LENGTH - filled);
-          
-          if (progressTextRef.current) progressTextRef.current.innerText = `${currentProg}%`;
+          const barString =
+            "█".repeat(filled) + "░".repeat(BAR_LENGTH - filled);
+
+          if (progressTextRef.current)
+            progressTextRef.current.innerText = `${currentProg}%`;
           if (asciiBarRef.current) asciiBarRef.current.innerText = barString;
         },
         onComplete: () => {
-          if (isImageLoaded) triggerExitSequence();
+          // Segura o "ready in" piscando por um instante antes de sair,
+          // senão o cursor mal aparece antes da tela fechar.
+          gsap.delayedCall(0.9, triggerExitSequence);
         },
       });
 
-      // 3. PRELOAD TRIGGER
-      preloadPillarImages().then(() => {
-        isImageLoaded = true;
-        if (!progressTween.isActive() && counter.val >= 99) {
-          triggerExitSequence();
-        }
-      });
-
-      // 4. EXIT SEQUENCE (Efeito CRT)
+      // 3. EXIT SEQUENCE (Efeito CRT)
       function triggerExitSequence() {
         gsap.killTweensOf(cursorRef.current);
 
@@ -129,25 +123,42 @@ export default function Loader({ onComplete }: LoaderProps) {
             duration: 0.3,
             ease: "power3.out",
             onUpdate: () => {
-              if (progressTextRef.current) progressTextRef.current.innerText = "100%";
-              if (asciiBarRef.current) asciiBarRef.current.innerText = "█".repeat(BAR_LENGTH);
+              if (progressTextRef.current)
+                progressTextRef.current.innerText = "100%";
+              if (asciiBarRef.current)
+                asciiBarRef.current.innerText = "█".repeat(BAR_LENGTH);
             },
           })
           .to(cursorRef.current, { opacity: 0, duration: 0.15 }, "<")
           .to(
-            [".loader-header", barRowRef.current, ".loader-footer-meta", bootLines],
-            { opacity: 0, y: -8, duration: 0.25, stagger: 0.02, ease: "power2.in" },
+            [
+              ".loader-header",
+              barRowRef.current,
+              ".loader-footer-meta",
+              bootLines,
+            ],
+            {
+              opacity: 0,
+              y: -8,
+              duration: 0.25,
+              stagger: 0.02,
+              ease: "power2.in",
+            },
             "<",
           )
           .to(".name-char", { opacity: 0, duration: 0.2, stagger: -0.02 }, "<") // Some ao contrário
-          
+
           // Flash CRT intenso antes de desligar
-          .to(containerRef.current, {
-             backgroundColor: "#ffffff",
-             duration: 0.08,
-             ease: "none"
-          }, "+=0.1")
-          
+          .to(
+            containerRef.current,
+            {
+              backgroundColor: "#ffffff",
+              duration: 0.08,
+              ease: "none",
+            },
+            "+=0.1",
+          )
+
           // Achata na vertical (fechando o tubo)
           .to(
             containerRef.current,
@@ -159,7 +170,7 @@ export default function Loader({ onComplete }: LoaderProps) {
             },
             "<", // Inicia logo após o flash
           )
-          
+
           // Colapsa na horizontal e some como uma TV velha
           .to(containerRef.current, {
             scaleX: 0,
@@ -222,7 +233,10 @@ export default function Loader({ onComplete }: LoaderProps) {
           <h1 className="font-display font-extrabold uppercase leading-[0.85] tracking-tighter text-[11vw] md:text-[6vw] transform-gpu overflow-hidden flex">
             {/* Split do nome para o efeito Stagger cascata */}
             {"George Lucas".split("").map((char, i) => (
-              <span key={i} className="name-char inline-block will-change-transform">
+              <span
+                key={i}
+                className="name-char inline-block will-change-transform"
+              >
                 {char === " " ? "\u00A0" : char}
               </span>
             ))}

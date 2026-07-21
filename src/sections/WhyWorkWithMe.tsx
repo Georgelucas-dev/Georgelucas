@@ -20,7 +20,7 @@ export default function WhyWorkWithMe() {
 
       const mm = gsap.matchMedia();
 
-      // DESKTOP: Animação vindo de baixo e das laterais
+      // DESKTOP: Entrada em Z-Pattern
       mm.add("(min-width: 768px)", () => {
         cards.forEach((card, index) => {
           const isLeft = index % 2 === 0;
@@ -49,7 +49,7 @@ export default function WhyWorkWithMe() {
         });
       });
 
-      // MOBILE: Animação apenas subindo
+      // MOBILE: Entrada linear
       mm.add("(max-width: 767px)", () => {
         cards.forEach((card) => {
           gsap.fromTo(
@@ -83,7 +83,7 @@ export default function WhyWorkWithMe() {
     >
       {/* TELA PRESA (STICKY BACKGROUND) */}
       <div className="sticky top-0 w-full h-[100svh] flex flex-col items-center justify-center pointer-events-none z-0 px-6">
-        <p className="font-mono text-xs md:text-sm uppercase tracking-[0.4em] text-ink-soft mb-6 text-center">
+        <p className="font-sans text-xs md:text-sm uppercase tracking-[0.4em] text-ink-soft mb-6 text-center">
           {whyWorkWithMeData.badge}
         </p>
         <h2 className="font-display font-bold text-[12vw] leading-[0.8] tracking-tighter text-ink/5 uppercase whitespace-nowrap select-none text-center">
@@ -93,14 +93,8 @@ export default function WhyWorkWithMe() {
         </h2>
       </div>
 
-      {/* CARDS QUE SOBEM */}
+      {/* CARDS EDITORIAIS, SEM BORDA ARREDONDADA */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-6 -mt-[100svh]">
-        {/* 
-          A MÁGICA ACONTECE AQUI NO pt-[100svh] e pb-[100svh]:
-          O 'pt' garante que a primeira rolagem mostre só o texto.
-          O 'pb' garante que, após o último card, haja espaço suficiente de rolagem 
-          para ele cruzar todo o monitor até sumir pelo topo antes de a seção acabar.
-        */}
         <div className="pt-[100svh] pb-[100svh] flex flex-col gap-12 md:gap-32">
           {pillars.map((pillar, index) => {
             const isLeft = index % 2 === 0;
@@ -108,40 +102,34 @@ export default function WhyWorkWithMe() {
             return (
               <div
                 key={pillar.id}
-                className={`pillar-card flex flex-col w-full md:w-[45%] p-8 md:p-12 bg-card/80 backdrop-blur-xl border border-border/60 rounded-none shadow-2xl will-change-transform ${
+                className={`pillar-card group relative flex flex-col w-full md:w-[45%] bg-paper/40 backdrop-blur-2xl border border-ink/15 hover:border-ink/40 hover:-translate-y-1 transition-all duration-500 will-change-transform ${
                   isLeft ? "md:mr-auto" : "md:ml-auto"
                 }`}
               >
-                <div className="flex flex-col justify-center">
-                  <div className="flex items-center gap-4 mb-6">
-                    <span className="font-mono text-xs md:text-sm text-ink/50 border border-ink/20 rounded-none px-3 py-1">
-                      {pillar.index}
-                    </span>
-                    <h3 className="font-display text-2xl md:text-3xl font-bold text-ink uppercase tracking-tight">
-                      {pillar.title}
-                    </h3>
-                  </div>
+                {/* Marcas de canto — o único acento decorativo, acende no hover */}
+                <span className="absolute top-0 left-0 w-4 h-4 border-t border-l border-ink/30 group-hover:border-clay transition-colors duration-500" />
+                <span className="absolute top-0 right-0 w-4 h-4 border-t border-r border-ink/30 group-hover:border-clay transition-colors duration-500" />
+                <span className="absolute bottom-0 left-0 w-4 h-4 border-b border-l border-ink/30 group-hover:border-clay transition-colors duration-500" />
+                <span className="absolute bottom-0 right-0 w-4 h-4 border-b border-r border-ink/30 group-hover:border-clay transition-colors duration-500" />
 
-                  <h4 className="text-lg font-medium text-ink-soft mb-4 font-serif italic">
-                    {pillar.subtitle}
-                  </h4>
+                <div className="flex flex-col gap-6 md:gap-8 p-8 md:p-12">
+                  {/* Número editorial */}
+                  <span className="font-display text-6xl md:text-7xl font-extralight text-ink/20 group-hover:text-clay leading-none tracking-tighter transition-colors duration-500">
+                    {pillar.index}
+                  </span>
 
-                  <p className="text-base text-ink/70 leading-relaxed mb-10">
-                    {pillar.overview}
+                  {/* Título */}
+                  <h3 className="font-display text-2xl md:text-3xl font-bold text-ink uppercase tracking-tight leading-[0.95]">
+                    {pillar.title}
+                  </h3>
+
+                  {/* Parágrafo */}
+                  <p className="font-sans text-sm md:text-base text-ink-soft leading-relaxed font-light max-w-md">
+                    {pillar.paragraph}
                   </p>
 
-                  <div className="grid grid-cols-3 gap-6 pt-8 border-t border-border/40">
-                    {pillar.metrics.map((metric, i) => (
-                      <div key={i} className="flex flex-col gap-2">
-                        <span className="text-xl md:text-2xl font-display font-bold text-ink leading-none">
-                          {metric.value}
-                        </span>
-                        <span className="text-[10px] md:text-xs uppercase font-mono tracking-wider text-ink-soft">
-                          {metric.label}
-                        </span>
-                      </div>
-                    ))}
-                  </div>
+                  {/* Linha que se desenha no hover */}
+                  <div className="h-px w-10 bg-ink/20 group-hover:w-full group-hover:bg-clay transition-all duration-700 ease-out" />
                 </div>
               </div>
             );

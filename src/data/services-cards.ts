@@ -5,10 +5,6 @@ export interface ServiceCard {
   text1: string;
   text2: string;
   actionText: string;
-  bgColor: string;
-  textColor: string;
-  numberColor: string;
-  borderColor: string;
 }
 
 export const servicesCards: ServiceCard[] = [
@@ -21,10 +17,6 @@ export const servicesCards: ServiceCard[] = [
     text2:
       "Design atraente, otimizado para celular, formulário de contato e integração com WhatsApp. Tudo pensado para transmitir credibilidade e gerar mais clientes.",
     actionText: "Quero um site",
-    bgColor: "bg-white",
-    textColor: "text-black",
-    numberColor: "text-black/30",
-    borderColor: "border-black/15",
   },
   {
     id: "02",
@@ -35,10 +27,6 @@ export const servicesCards: ServiceCard[] = [
     text2:
       "Seja um dashboard, plataforma de agendamento, e-commerce simples ou automação, entrego código limpo, performático e fácil de manter.",
     actionText: "Falar sobre meu projeto",
-    bgColor: "bg-[#1a1a1a]",
-    textColor: "text-white",
-    numberColor: "text-white/40",
-    borderColor: "border-white/20",
   },
   {
     id: "03",
@@ -49,10 +37,6 @@ export const servicesCards: ServiceCard[] = [
     text2:
       "Foco em conversão: agendamento online, WhatsApp, SEO básico e design que passa confiança para o cliente final.",
     actionText: "Quero meu site",
-    bgColor: "bg-white",
-    textColor: "text-black",
-    numberColor: "text-black/30",
-    borderColor: "border-black/15",
   },
   {
     id: "04",
@@ -63,9 +47,5 @@ export const servicesCards: ServiceCard[] = [
     text2:
       "Também posso modernizar visualmente sites antigos, tornando-os mais rápidos e atrativos.",
     actionText: "Preciso de manutenção",
-    bgColor: "bg-[#f5f5f5]",
-    textColor: "text-black",
-    numberColor: "text-black/30",
-    borderColor: "border-black/15",
   },
 ];

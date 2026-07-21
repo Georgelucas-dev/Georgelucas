@@ -189,25 +189,16 @@ export function ServicesSection() {
           className="service-wrapper relative lg:sticky lg:top-0 w-full min-h-[100svh] lg:h-[100svh]"
           style={{ zIndex: index + 1 }}
         >
-          <section
-            className={`service-inner w-full h-full flex flex-col justify-between overflow-hidden will-change-transform ${service.bgColor} ${service.textColor}`}
-          >
+          <section className="service-inner w-full h-full flex flex-col justify-between overflow-hidden will-change-transform bg-foreground text-background">
             {/* Header Animado */}
-            <div className="service-header flex-1 px-6 md:px-12 pb-8 lg:pb-16 pt-12 md:pt-16 flex justify-between items-start">
+            <div className="service-header flex-1 px-6 md:px-12 pb-8 lg:pb-16 pt-12 md:pt-16 flex items-start">
               <h2 className="font-display font-medium text-2xl sm:text-7xl md:text-6xl lg:text-[5rem] xl:text-[7rem] leading-[0.85] tracking-tighter whitespace-pre-line">
                 {service.title}
               </h2>
-              <span
-                className={`font-display font-medium text-6xl sm:text-7xl md:text-8xl lg:text-[9rem] xl:text-[10.5rem] leading-[0.85] tracking-tighter ${service.numberColor}`}
-              >
-                {service.id}
-              </span>
             </div>
 
             {/* Grid Inferior */}
-            <div
-              className={`h-auto lg:h-[40%] border-t ${service.borderColor} grid grid-cols-1 lg:grid-cols-12 mb-20 lg:mb-28`}
-            >
+            <div className="h-auto lg:h-[40%] grid grid-cols-1 lg:grid-cols-12 mb-20 lg:mb-28">
               <div className="col-span-1 lg:col-span-8 p-6 md:p-10 lg:p-12 flex flex-col justify-between gap-10 lg:gap-0">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-6 md:gap-10">
                   <div className="col-span-1">
@@ -230,21 +221,17 @@ export function ServicesSection() {
                 </div>
 
                 <div className="mt-auto pt-6 lg:pt-0">
-                  <button
-                    className={`pb-1 border-b ${service.borderColor} hover:opacity-60 transition-opacity text-sm font-medium`}
-                  >
+                  <button className="pb-1 hover:opacity-60 transition-opacity text-sm font-medium">
                     {service.actionText}
                   </button>
                 </div>
               </div>
 
               {/* Mockup Animado */}
-              <div
-                className={`service-mockup col-span-1 lg:col-span-4 relative border-t lg:border-t-0 lg:border-l ${service.borderColor} bg-black/5 flex items-end justify-center min-h-[25vh] lg:min-h-full overflow-hidden`}
-              >
-                <div className="w-[85%] h-[80%] bg-[#111] mt-8 rounded-t-xl shadow-2xl border border-white/10 flex items-center justify-center relative">
-                  <span className="text-white/30 text-xs">Image / Mockup</span>
-                  <div className="absolute -bottom-2 w-[110%] h-4 bg-[#222] rounded-b-xl shadow-xl"></div>
+              <div className="service-mockup col-span-1 lg:col-span-4 relative bg-background/5 flex items-end justify-center min-h-[25vh] lg:min-h-full overflow-hidden">
+                <div className="w-[85%] h-[80%] bg-background mt-8 rounded-t-xl shadow-2xl flex items-center justify-center relative">
+                  <span className="text-ink/30 text-xs">Image / Mockup</span>
+                  <div className="absolute -bottom-2 w-[110%] h-4 bg-card rounded-b-xl shadow-xl"></div>
                 </div>
               </div>
             </div>

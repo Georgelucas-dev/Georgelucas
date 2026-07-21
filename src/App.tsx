@@ -83,7 +83,7 @@ function App() {
             <Projects />
             <About />
             <WhyWorkWithMe/>
-            {/* <Contact /> */}
+            <Contact />
             <VibePicker />
             <Footer />
           </main>

@@ -57,7 +57,6 @@ export default function Hero() {
     >
       <HeroNav />
 
-      {/* CONTEÚDO CENTRAL — Agora com o mesmo padding idêntico ao do Nav */}
       <div className="flex-1 min-h-0 flex flex-col items-center justify-center px-6 md:px-12 text-center z-10">
         <div ref={iconRef} className="mb-6 text-ink/40">
           <svg
