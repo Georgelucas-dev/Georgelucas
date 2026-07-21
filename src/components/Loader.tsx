@@ -1,258 +1,214 @@
 // components/Loader.tsx
 import { useEffect, useRef } from "react";
 import gsap from "gsap";
+import { useHero } from "@/context/HeroContext";
 
 interface LoaderProps {
   onComplete: () => void;
 }
 
-const BOOT_LINES = [
-  "connecting to george.dev",
-  "fetching project assets",
-  "rendering interface",
-];
-
-const BAR_LENGTH = 24;
-
 export default function Loader({ onComplete }: LoaderProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const barRowRef = useRef<HTMLParagraphElement>(null);
-  const cursorRef = useRef<HTMLSpanElement>(null);
-
-  // Refs para injetar texto direto no DOM (evita re-renders do React)
+  const progressLineRef = useRef<HTMLDivElement>(null);
   const progressTextRef = useRef<HTMLSpanElement>(null);
-  const asciiBarRef = useRef<HTMLSpanElement>(null);
+  const nameWrapperRef = useRef<HTMLDivElement>(null);
+  const subtitleRef = useRef<HTMLParagraphElement>(null);
+
+  const { setHeroVisivel } = useHero();
 
   useEffect(() => {
     const counter = { val: 0 };
 
-    const ctx = gsap.context((self) => {
-      // Cursor pisca desde o início
-      gsap.to(cursorRef.current, {
+    const ctx = gsap.context(() => {
+      // ── 1. PROGRESSO E APARIÇÃO DOS ELEMENTOS ──
+      const mainTl = gsap.timeline();
+
+      // Linha de progresso (barra fina superior)
+      gsap.set(progressLineRef.current, { scaleX: 0, transformOrigin: "left" });
+
+      // Nome começa menor e ligeiramente abaixo, sobe com bounce
+      gsap.set(nameWrapperRef.current, {
+        scale: 0.6,
+        y: 40,
         opacity: 0,
-        duration: 0.5,
-        repeat: -1,
-        yoyo: true,
-        ease: "steps(1)",
       });
 
-      // 1. BOOT SEQUENCE
-      const introTl = gsap.timeline();
+      // Subtítulo começa invisível e baixo
+      gsap.set(subtitleRef.current, { opacity: 0, y: 15 });
 
-      introTl.fromTo(
-        ".loader-header",
-        { opacity: 0, y: -12 },
-        { opacity: 0.6, y: 0, duration: 0.6, ease: "power3.out" },
-      );
-
-      // Usando array nativo do utilitário GSAP ao invés de Refs complexas
-      const bootLines = self.selector?.(".boot-line");
-
-      bootLines?.forEach((line: HTMLElement, i: number) => {
-        const textLength = line.textContent?.length || 20;
-        introTl.fromTo(
-          line,
-          { clipPath: "inset(0 100% 0 0)" },
-          {
-            clipPath: "inset(0 0% 0 0)",
-            duration: Math.max(textLength * 0.028, 0.3),
-            ease: `steps(${textLength})`,
-          },
-          i === 0 ? "-=0.1" : ">+0.15",
-        );
-      });
-
-      introTl
-        .fromTo(
-          barRowRef.current,
-          { opacity: 0, y: 6 },
-          { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" },
-          ">+0.1",
-        )
-        // Stagger cascata para as letras do nome
-        .fromTo(
-          ".name-char",
-          { y: "110%", opacity: 0 },
-          {
-            y: "0%",
-            opacity: 1,
-            duration: 0.8,
-            stagger: 0.04,
-            ease: "back.out(1.2)",
-          },
-          ">-0.1",
-        )
-        .fromTo(
-          ".loader-footer-meta",
-          { opacity: 0, y: 12 },
-          { opacity: 1, y: 0, duration: 0.5, ease: "power3.out" },
-          "<0.1",
-        );
-
-      // 2. PROGRESS COUNTER (Injeção direta no DOM)
+      // Animação da barra e do contador
       gsap.to(counter, {
-        val: 99,
-        duration: 2.8,
-        ease: "power2.inOut",
+        val: 100,
+        duration: 2.5,
+        ease: "power3.inOut",
         onUpdate: () => {
-          const currentProg = Math.floor(counter.val);
-          const filled = Math.round((currentProg / 100) * BAR_LENGTH);
-          const barString =
-            "█".repeat(filled) + "░".repeat(BAR_LENGTH - filled);
-
+          const current = Math.round(counter.val);
           if (progressTextRef.current)
-            progressTextRef.current.innerText = `${currentProg}%`;
-          if (asciiBarRef.current) asciiBarRef.current.innerText = barString;
-        },
-        onComplete: () => {
-          // Segura o "ready in" piscando por um instante antes de sair,
-          // senão o cursor mal aparece antes da tela fechar.
-          gsap.delayedCall(0.9, triggerExitSequence);
+            progressTextRef.current.innerText = `${current}%`;
         },
       });
 
-      // 3. EXIT SEQUENCE (Efeito CRT)
-      function triggerExitSequence() {
-        gsap.killTweensOf(cursorRef.current);
+      // A barra acompanha o progresso
+      gsap.to(progressLineRef.current, {
+        scaleX: 1,
+        duration: 2.5,
+        ease: "power3.inOut",
+      });
+
+      // O nome aparece com um stagger de letras, efeito "magnetic"
+      mainTl
+        .fromTo(
+          ".loader-name-char",
+          { y: 30, opacity: 0, rotationZ: -4 },
+          {
+            y: 0,
+            opacity: 1,
+            rotationZ: 0,
+            duration: 0.7,
+            stagger: {
+              each: 0.04,
+              from: "center",
+            },
+            ease: "back.out(2)",
+          },
+          0.3, // começa cedo, quase junto com a barra
+        )
+        .fromTo(
+          nameWrapperRef.current,
+          {
+            scale: 0.6,
+            opacity: 0,
+            y: 40,
+          },
+          {
+            scale: 1,
+            opacity: 1,
+            y: 0,
+            duration: 0.8,
+            ease: "elastic.out(1,0.5)",
+          },
+          "<0.1",
+        )
+        .to(
+          subtitleRef.current,
+          { opacity: 1, y: 0, duration: 0.5, ease: "power2.out" },
+          "-=0.2",
+        );
+
+      // ── 2. SEQUÊNCIA DE SAÍDA (merge com o Hero) ──
+      function triggerExit() {
+        // Avisa o contexto que o hero pode começar a ficar visível
+        setHeroVisivel(true);
 
         const exitTl = gsap.timeline({ onComplete });
 
-        exitTl
-          .to(counter, {
-            val: 100,
-            duration: 0.3,
-            ease: "power3.out",
-            onUpdate: () => {
-              if (progressTextRef.current)
-                progressTextRef.current.innerText = "100%";
-              if (asciiBarRef.current)
-                asciiBarRef.current.innerText = "█".repeat(BAR_LENGTH);
-            },
-          })
-          .to(cursorRef.current, { opacity: 0, duration: 0.15 }, "<")
-          .to(
-            [
-              ".loader-header",
-              barRowRef.current,
-              ".loader-footer-meta",
-              bootLines,
-            ],
-            {
-              opacity: 0,
-              y: -8,
-              duration: 0.25,
-              stagger: 0.02,
-              ease: "power2.in",
-            },
-            "<",
-          )
-          .to(".name-char", { opacity: 0, duration: 0.2, stagger: -0.02 }, "<") // Some ao contrário
+        // Linha de progresso se retrai rapidamente
+        exitTl.to(progressLineRef.current, {
+          scaleX: 0,
+          duration: 0.25,
+          ease: "power2.in",
+        });
 
-          // Flash CRT intenso antes de desligar
-          .to(
-            containerRef.current,
-            {
-              backgroundColor: "#ffffff",
-              duration: 0.08,
-              ease: "none",
-            },
-            "+=0.1",
-          )
+        // Subtítulo some suavemente
+        exitTl.to(
+          subtitleRef.current,
+          { opacity: 0, y: -10, duration: 0.3 },
+          "<",
+        );
 
-          // Achata na vertical (fechando o tubo)
-          .to(
-            containerRef.current,
-            {
-              scaleY: 0.005,
-              duration: 0.35,
-              ease: "expo.in",
-              transformOrigin: "50% 50%",
-            },
-            "<", // Inicia logo após o flash
-          )
+        // O nome "George" desce até a posição que terá no Hero
+        // (ajuste os valores conforme seu viewport, aqui usei vh relativo)
+        exitTl.to(
+          nameWrapperRef.current,
+          {
+            y: "80vh", // move para a parte inferior
+            scale: 1.8, // aumenta um pouco para igualar o tamanho do hero
+            duration: 0.8,
+            ease: "power4.inOut",
+          },
+          ">0.1",
+        );
 
-          // Colapsa na horizontal e some como uma TV velha
-          .to(containerRef.current, {
-            scaleX: 0,
-            opacity: 0,
-            duration: 0.3,
-            ease: "power4.in",
-          });
+        // Fundo transita de bg-foreground para bg-background (como o hero)
+        exitTl.to(
+          containerRef.current,
+          {
+            backgroundColor: "var(--color-background)", // bg-background do seu tema
+            duration: 0.6,
+            ease: "none",
+          },
+          "<0.2",
+        );
+
+        // Aos poucos o nome some para revelar o verdadeiro elemento do Hero
+        // (o hero já terá o seu próprio "George" posicionado, que deve aparecer com opacidade)
+        exitTl.to(
+          nameWrapperRef.current,
+          { opacity: 0, duration: 0.4, ease: "power2.in" },
+          ">0.2",
+        );
+
+        // Remove completamente o overlay
+        exitTl.to(containerRef.current, {
+          opacity: 0,
+          duration: 0.4,
+          ease: "power3.in",
+        });
       }
+
+      // Dispara a saída assim que o contador atinge 100%
+      gsap.to(counter, {
+        val: 100,
+        duration: 2.5,
+        ease: "power3.inOut",
+        onComplete: () => {
+          gsap.delayedCall(0.4, triggerExit);
+        },
+      });
     }, containerRef);
 
     return () => ctx.revert();
-  }, [onComplete]);
+  }, [onComplete, setHeroVisivel]);
 
   return (
     <div
       ref={containerRef}
-      style={{ willChange: "transform, background-color" }}
-      className="fixed inset-0 z-[9999] flex flex-col justify-between bg-foreground text-background px-6 md:px-12 py-8 overflow-hidden pointer-events-none font-mono"
+      className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-foreground text-background overflow-hidden pointer-events-none"
     >
-      {/* Scanlines sutis */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-[0.05]"
-        style={{
-          backgroundImage:
-            "repeating-linear-gradient(to bottom, currentColor 0px, currentColor 1px, transparent 1px, transparent 3px)",
-        }}
-      />
-
-      {/* Header */}
-      <div className="loader-header flex justify-between items-center text-xs uppercase tracking-widest opacity-0 relative z-10">
-        <span>george.dev</span>
-        <span>boot sequence</span>
+      {/* Linha de progresso no topo */}
+      <div className="absolute top-0 left-0 right-0 h-[2px] bg-background/20">
+        <div
+          ref={progressLineRef}
+          className="h-full bg-background origin-left"
+        />
       </div>
 
-      {/* Terminal body */}
-      <div className="flex flex-col gap-2 max-w-xl relative z-10">
-        {BOOT_LINES.map((line) => (
-          <p
-            key={line}
-            style={{ clipPath: "inset(0 100% 0 0)" }}
-            className="boot-line whitespace-nowrap text-sm md:text-base will-change-[clip-path]"
-          >
-            <span className="text-background">$</span>{" "}
-            <span className="text-background/70">{line}</span>
-          </p>
-        ))}
+      {/* Contador de porcentagem (posicionado na esquerda inferior) */}
+      <span
+        ref={progressTextRef}
+        className="absolute bottom-6 left-6 font-mono text-xs tracking-[0.2em] text-background/60"
+      >
+        0%
+      </span>
 
-        <p ref={barRowRef} className="text-sm md:text-base">
-          <span className="text-background">$</span>{" "}
-          {/* Refs vazias para injeção de alta performance */}
-          <span ref={asciiBarRef} className="tabular-nums"></span>{" "}
-          <span ref={progressTextRef} className="text-background/50"></span>
+      {/* Nome e subtítulo centrais */}
+      <div ref={nameWrapperRef} className="flex flex-col items-center">
+        <h1 className="flex font-display font-black text-[15vw] leading-none tracking-tighter text-sage uppercase will-change-transform">
+          {"George".split("").map((char, i) => (
+            <span
+              key={i}
+              className="loader-name-char inline-block will-change-transform"
+            >
+              {char}
+            </span>
+          ))}
+        </h1>
+        <p
+          ref={subtitleRef}
+          className="mt-2 text-xs sm:text-sm uppercase tracking-[0.35em] text-background/70 font-light"
+        >
+          Design & Código
         </p>
-      </div>
-
-      {/* Footer */}
-      <div className="relative z-10 flex items-end justify-between">
-        <div className="overflow-hidden">
-          <h1 className="font-display font-extrabold uppercase leading-[0.85] tracking-tighter text-[11vw] md:text-[6vw] transform-gpu overflow-hidden flex">
-            {/* Split do nome para o efeito Stagger cascata */}
-            {"George Lucas".split("").map((char, i) => (
-              <span
-                key={i}
-                className="name-char inline-block will-change-transform"
-              >
-                {char === " " ? "\u00A0" : char}
-              </span>
-            ))}
-          </h1>
-          <p className="loader-footer-meta mt-2 text-xs uppercase tracking-widest opacity-0 text-background/50">
-            Front-end Developer
-          </p>
-        </div>
-
-        <div className="loader-footer-meta opacity-0 flex items-baseline gap-1 text-sm md:text-base">
-          <span className="text-background/50">ready in</span>
-          <span
-            ref={cursorRef}
-            className="inline-block h-[1em] w-[0.5ch] bg-background align-[-0.15em] ml-1"
-          />
-        </div>
       </div>
     </div>
   );
