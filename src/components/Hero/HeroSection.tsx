@@ -69,7 +69,7 @@ export default function HeroSection() {
     >
       <FilmGrain />
       <div className="absolute inset-0 pt-20 px-4 md:px-12">
-        <div className="flex flex-col h-full gap-4">
+        <div className="flex flex-col h-full">
           <div className="flex-1 min-h-0 relative rounded-3xl overflow-hidden">
             <ImageRevealContainer
               imageSrc={HERO_IMAGE}
@@ -85,7 +85,7 @@ export default function HeroSection() {
               {pixelGrid}
             </div>
           </div>
-          <div className="shrink-0 overflow-hidden pb-4">
+          <div className="shrink-0 overflow-hidden">
             <div ref={contentRef} className="will-change-transform">
               <HeroContentMinimal />
             </div>

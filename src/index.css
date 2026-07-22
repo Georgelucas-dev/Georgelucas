@@ -42,7 +42,7 @@
 :root {
   /* Dark é o único tema — valores que antes viviam em .dark agora são a base */
   --background: oklch(0.1 0 0);
-  --foreground: oklch(0.96 0.01 260);
+  --foreground: oklch(100% 0.00011 271.152);
 
   --card: oklch(0.15 0.01 260);
   --card-foreground: oklch(0.96 0.01 260);
